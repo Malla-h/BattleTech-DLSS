@@ -81,6 +81,17 @@ namespace BTScale
         }
     }
 
+    // The game resets its own TAA history on camera cuts (scripted camera sequences snapping to their start, the player camera being
+    // restored after one) and on mood/profile changes. DLSS keeps its own history, so it needs the same signal.
+    [HarmonyPatch(typeof(TaaComponent), "ResetHistory")]
+    static class Taa_ResetHistory
+    {
+        static void Postfix()
+        {
+            if (Dlss.Ready) Dlss.RequestReset("game reset its temporal history (camera cut or scene change)");
+        }
+    }
+
     [HarmonyPatch(typeof(TaaComponent), "Render")]
     static class Taa_Render
     {

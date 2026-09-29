@@ -76,6 +76,35 @@ namespace BTScale
         public static int LastEvalFrame = -100;
         public static int MidFrame = -1;                                    // frame in which MidRT holds a finished image
 
+        // Camera cuts: DLSS history from the old view would smear into the new one for a few frames, so the next evaluate is told to reset.
+        // The game announces its own cuts through TaaComponent.ResetHistory (hooked in PPPatches). The rest is a safety net for jumps it does not
+        // announce: a very large rotation in one frame, or a large move that is also implausibly fast.
+        public static bool ResetPending;
+        const float CutAngle = 30f, CutDistance = 40f, CutSpeed = 600f;
+        static Vector3 lastCamPos; static Quaternion lastCamRot; static float lastCamTime = -1f;
+        static int resetLogs;
+
+        public static void RequestReset(string why)
+        {
+            ResetPending = true;
+            if (resetLogs++ < 30) Main.Log("DLSS history reset requested: " + why);
+        }
+
+        static void NoteCamera(Camera cam)
+        {
+            var t = cam.transform;
+            float now = Time.unscaledTime;
+            if (lastCamTime >= 0f)
+            {
+                float dt = Mathf.Max(now - lastCamTime, 1e-4f);
+                float dist = Vector3.Distance(t.position, lastCamPos);
+                float ang = Quaternion.Angle(t.rotation, lastCamRot);
+                if (ang > CutAngle) RequestReset("camera rotated " + ang.ToString("F0") + " degrees in one frame");
+                else if (dist > CutDistance && dist / dt > CutSpeed) RequestReset("camera moved " + dist.ToString("F0") + " units in " + (dt * 1000f).ToString("F0") + " ms");
+            }
+            lastCamPos = t.position; lastCamRot = t.rotation; lastCamTime = now;
+        }
+
         static readonly int CreateSize = Marshal.SizeOf(typeof(CreateData)), EvalSize = Marshal.SizeOf(typeof(EvalData));
         static St state = St.Off;
         static bool loaded;
@@ -195,6 +224,7 @@ namespace BTScale
         public static Matrix4x4 JitterMatrix(Vector2 ignored)
         {
             var cam = Scaler.MainCam;
+            NoteCamera(cam);
             var m = cam.projectionMatrix;
             jitterIndex = (jitterIndex + 1) % Phases;
             JitterPx = NoJitter ? Vector2.zero : new Vector2(Halton(jitterIndex + 1, 2) - 0.5f, Halton(jitterIndex + 1, 3) - 0.5f);
@@ -207,7 +237,8 @@ namespace BTScale
         public static bool Evaluate(RenderTexture color, RenderTexture depth, RenderTexture motion, RenderTexture output, int rw, int rh)
         {
             if (state != St.Ready || color == null || depth == null || motion == null || output == null) return false;
-            bool reset = Time.frameCount - LastEvalFrame > 1;
+            bool reset = ResetPending || Time.frameCount - LastEvalFrame > 1;
+            ResetPending = false;
             var ed = new EvalData
             {
                 color = color.GetNativeTexturePtr(), depth = depth.GetNativeTexturePtr(),
