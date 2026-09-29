@@ -15,6 +15,8 @@ namespace BTScale
         public string preset = "K";            // one of Main.PresetNames
         public int mipLevel = 0;               // index into MipBias.Levels: 0 full, 1 two thirds, 2 a third, 3 off
         public bool dlss = true;
+        public bool jitterTransparents = false; // jitter transparents/VFX too: better for DLSS on particles, but mech outlines then wobble
+        public bool fullVfx = false;            // force the game's VFX layer to full internal resolution (it may use half)
         public bool debug = false;             // developer tools: sign-flip keys, stage captures, screenshots, calibration
         public string toggleKey = "F8";        // whole render pipeline on/off
         public string menuKey = "F11";
@@ -358,7 +360,8 @@ namespace BTScale
                     // The outlines are drawn with the jittered camera but never go through DLSS, so they would visibly wobble.
                     // Sample them shifted by this frame's jitter to cancel it.
                     Vector2 shift = Vector2.zero;
-                    if (fromDlss && !PP_OnPreCull_Outline.Unjitter) shift = Dlss.OutlineSign * new Vector2(Dlss.JitterPx.x / elem.width, Dlss.JitterPx.y / elem.height);
+                    // Only needed when transparents are jittered: in vanilla the outlines are drawn unjittered and need no correction.
+                    if (fromDlss && Main.S.jitterTransparents && !PP_OnPreCull_Outline.Unjitter) shift = Dlss.OutlineSign * new Vector2(Dlss.JitterPx.x / elem.width, Dlss.JitterPx.y / elem.height);
                     Graphics.Blit(elem, ec, Vector2.one, shift);
                     Shader.SetGlobalTexture(ElemId, ec);
                     __state.ElemComp = ec;

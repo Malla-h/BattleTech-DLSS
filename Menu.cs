@@ -57,6 +57,10 @@ namespace BTScale
             if (pi != Main.PresetIndex) { s.preset = Main.PresetNames[pi]; Main.ApplyToRuntime(); Dlss.Retry(); }
 
             GUILayout.Space(6);
+            s.jitterTransparents = GUILayout.Toggle(s.jitterTransparents, "Jitter particles too (cleaner DLSS on fire/smoke, but mech outlines wobble)");
+            s.fullVfx = GUILayout.Toggle(s.fullVfx, "Full-resolution particle effects (costs GPU time)");
+
+            GUILayout.Space(6);
             GUILayout.Label("Texture sharpness bias (compensates the lower render resolution)");
             int mi = GUILayout.SelectionGrid(MipBias.Level, MipNames, 4);
             if (mi != MipBias.Level) { s.mipLevel = mi; MipBias.SetLevel(mi); }

@@ -68,7 +68,8 @@ namespace BTScale
         static void Postfix()
         {
             var cam = Scaler.MainCam;
-            if (cam != null && Scaler.Active(cam) && Dlss.Ready) cam.useJitteredProjectionMatrixForTransparentRendering = true;
+            // Off (the game's own setting) keeps the mech outlines steady; on gives DLSS consistent jitter on particles.
+            if (Main.S.jitterTransparents && cam != null && Scaler.Active(cam) && Dlss.Ready) cam.useJitteredProjectionMatrixForTransparentRendering = true;
         }
     }
 }

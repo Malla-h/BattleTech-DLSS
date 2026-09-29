@@ -9,6 +9,8 @@
     "preset": "K",
     "mipLevel": 0,
     "dlss": true,
+    "jitterTransparents": false,
+    "fullVfx": false,
     "debug": false,
     "toggleKey": "F8",
     "menuKey": "F11"
