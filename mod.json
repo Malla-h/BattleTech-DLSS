@@ -1,0 +1,16 @@
+{
+  "Name": "BTScale",
+  "Enabled": true,
+  "Version": "0.2.0",
+  "DLL": "BTScale.dll",
+  "DLLEntryPoint": "BTScale.Main.Init",
+  "Settings": {
+    "quality": "Quality",
+    "preset": "K",
+    "mipLevel": 0,
+    "dlss": true,
+    "debug": false,
+    "toggleKey": "F8",
+    "menuKey": "F11"
+  }
+}

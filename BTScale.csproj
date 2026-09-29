@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>BTScale</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <BTRoot>H:\SteamLibrary\steamapps\common\BATTLETECH</BTRoot>
+    <BTManaged>$(BTRoot)\BattleTech_Data\Managed</BTManaged>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="$(BTManaged)\UnityEngine*.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(BTManaged)\Assembly-CSharp.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(BTRoot)\Mods\ModTek\lib\0Harmony.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

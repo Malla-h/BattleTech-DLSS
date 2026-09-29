@@ -1,0 +1,6 @@
+bin/
+obj/
+*.log
+*.png
+BTScale.user.json
+.vs/
