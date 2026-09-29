@@ -55,6 +55,7 @@ namespace BTScale
         public static int LastEvalFrame = -100;
         public static int MidFrame = -1;                                    // frame in which MidRT holds a finished image
 
+        static readonly int CreateSize = Marshal.SizeOf(typeof(CreateData)), EvalSize = Marshal.SizeOf(typeof(EvalData));
         static St state = St.Off;
         static bool loaded;
         static IntPtr evalFn, evalRing, createRing;
@@ -151,7 +152,7 @@ namespace BTScale
                 preset = Preset,
                 dir = Main.Dir
             };
-            var p = createRing + (slot++ & 3) * Marshal.SizeOf(typeof(CreateData));
+            var p = createRing + (slot++ & 3) * CreateSize;
             Marshal.StructureToPtr(cd, p, false);
             Issue(1, p);
             cw = rw; ch = rh; ow = outW; oh = outH; cq = Quality; cp = Preset;
@@ -172,7 +173,7 @@ namespace BTScale
         // Installed as PostProcessingBehaviour.jitteredMatrixFunc: our own jitter instead of the game's weak 8-sample one.
         public static Matrix4x4 JitterMatrix(Vector2 ignored)
         {
-            var cam = Camera.main;
+            var cam = Scaler.MainCam;
             var m = cam.projectionMatrix;
             jitterIndex = (jitterIndex + 1) % Phases;
             JitterPx = NoJitter ? Vector2.zero : new Vector2(Halton(jitterIndex + 1, 2) - 0.5f, Halton(jitterIndex + 1, 3) - 0.5f);
@@ -195,7 +196,7 @@ namespace BTScale
                 reset = reset ? 1 : 0, renderW = rw, renderH = rh,
                 sharpness = 0f, preExposure = 1f
             };
-            var p = evalRing + (slot++ & 15) * Marshal.SizeOf(typeof(EvalData));
+            var p = evalRing + (slot++ & 15) * EvalSize;
             Marshal.StructureToPtr(ed, p, false);
             Issue(2, p);
             LastEvalFrame = Time.frameCount;

@@ -67,7 +67,7 @@ namespace BTScale
     {
         static void Postfix()
         {
-            var cam = Camera.main;
+            var cam = Scaler.MainCam;
             if (cam != null && Scaler.Active(cam) && Dlss.Ready) cam.useJitteredProjectionMatrixForTransparentRendering = true;
         }
     }

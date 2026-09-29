@@ -62,6 +62,8 @@ namespace BTScale
         public static void Init(string directory, string settingsJSON)
         {
             Dir = directory;
+            RotateLog("BTScale.log");
+            RotateLog("BTDLSS.log");
             try { if (!string.IsNullOrEmpty(settingsJSON)) JsonUtility.FromJsonOverwrite(settingsJSON, S); } catch { }
             try { if (File.Exists(UserPath)) JsonUtility.FromJsonOverwrite(File.ReadAllText(UserPath), S); } catch { }
             S.mipLevel = Mathf.Clamp(S.mipLevel, 0, 3);
@@ -85,9 +87,36 @@ namespace BTScale
             go.AddComponent<Menu>();
         }
 
+        // Logs are per session: the previous one is kept as .old, and a session stops logging past a size cap.
+        const long LogCap = 2 * 1024 * 1024;
+        static long logBytes;
+        static bool logCapped;
+
+        internal static void RotateLog(string name)
+        {
+            try
+            {
+                var p = Path.Combine(Dir, name);
+                if (File.Exists(p))
+                {
+                    var old = p + ".old";
+                    if (File.Exists(old)) File.Delete(old);
+                    File.Move(p, old);
+                }
+            }
+            catch { }
+        }
+
         internal static void Log(string msg)
         {
-            try { File.AppendAllText(Path.Combine(Dir, "BTScale.log"), DateTime.Now.ToString("HH:mm:ss.fff") + " " + msg + "\n"); } catch { }
+            if (logCapped) return;
+            try
+            {
+                var line = DateTime.Now.ToString("HH:mm:ss.fff") + " " + msg + "\n";
+                if ((logBytes += line.Length) > LogCap) { logCapped = true; line += "-- log size cap reached, further messages dropped --\n"; }
+                File.AppendAllText(Path.Combine(Dir, "BTScale.log"), line);
+            }
+            catch { }
         }
     }
 
@@ -103,6 +132,7 @@ namespace BTScale
         string status = "";
         Camera presentCam;
         int stableFrames, shotCount;
+        float nextStatusAt;
 
         void Awake()
         {
@@ -139,14 +169,40 @@ namespace BTScale
             return FinalRT;
         }
 
+        // Camera.main and component lookups are not free and this runs several times per frame, so they are cached and
+        // re-checked about once a second (the combat camera can gain components while a mission loads).
+        static Camera mainCam;
+        static int mainCamFrame = -1000;
+        static bool combatCam;
+        static BattleTech.Rendering.BTPostProcess cachedBtpp;
+        static UnityEngine.PostProcessing.PostProcessingBehaviour cachedPpb;
+
+        internal static Camera MainCam
+        {
+            get
+            {
+                if (mainCam == null || !mainCam.isActiveAndEnabled || Time.frameCount - mainCamFrame > 60)
+                {
+                    mainCam = Camera.main;
+                    mainCamFrame = Time.frameCount;
+                    combatCam = FindCombat(mainCam);
+                    cachedBtpp = combatCam ? mainCam.GetComponent<BattleTech.Rendering.BTPostProcess>() : null;
+                    cachedPpb = mainCam != null ? mainCam.GetComponent<UnityEngine.PostProcessing.PostProcessingBehaviour>() : null;
+                }
+                return mainCam;
+            }
+        }
+
         // The combat camera is the main camera that carries RenderTrees. Menus and the sim game use other setups.
-        static bool IsCombatCamera(Camera c)
+        static bool FindCombat(Camera c)
         {
             if (c == null) return false;
             foreach (var comp in c.GetComponents<Component>())
                 if (comp != null && comp.GetType().Name == "RenderTrees") return true;
             return false;
         }
+
+        static bool IsCombatCamera(Camera c) { return c != null && c == MainCam && combatCam; }
 
         internal static bool Active(Camera c)
         {
@@ -188,17 +244,17 @@ namespace BTScale
             //   Ctrl+F6 mip level, Ctrl+F7 4K screenshot, Ctrl+F8 outline shift direction, Ctrl+F9 outline unjitter, Ctrl+F10 calibration.
             if (Main.S.debug) DebugKeys(ctrl);
 
-            var cam = Camera.main;
-            bool combat = IsCombatCamera(cam);
-            var pp = combat ? cam.GetComponent<BattleTech.Rendering.BTPostProcess>() : null;
+            var cam = MainCam;
+            bool combat = combatCam;
+            var pp = cachedBtpp;
             bool loading = pp != null && pp.loadingCam;
             // Wait for the combat camera to settle (and the loading screen to end) before redirecting its output.
             if (combat && !loading) stableFrames++; else stableFrames = 0;
             bool want = Enabled && stableFrames > 30;
-            presentCam.enabled = want;
+            if (presentCam.enabled != want) presentCam.enabled = want;
 
             // Our own jitter for DLSS; the game's stays untouched whenever DLSS is not running.
-            var ppb = cam != null ? cam.GetComponent<UnityEngine.PostProcessing.PostProcessingBehaviour>() : null;
+            var ppb = cachedPpb;
             if (ppb != null)
             {
                 Func<Vector2, Matrix4x4> jf = (want && Dlss.Ready) ? (Func<Vector2, Matrix4x4>)Dlss.JitterMatrix : null;
@@ -223,12 +279,16 @@ namespace BTScale
                     cam.targetTexture = LowRT;
                     Main.Log("Camera '" + cam.name + "' now renders to " + LowRT.name + " (pixel " + cam.pixelWidth + "x" + cam.pixelHeight + ")");
                 }
-                status = (SkipUI ? "[skipUI] " : "") + "BTScale ON " + LowRT.width + "x" + LowRT.height + " -> " + Screen.width + "x" + Screen.height + " (" + Main.S.toggleKey + " toggles) | " + Dlss.Describe();
+                if (Time.unscaledTime >= nextStatusAt)     // building this string every frame allocates for nothing
+                {
+                    nextStatusAt = Time.unscaledTime + 0.25f;
+                    status = (SkipUI ? "[skipUI] " : "") + "BTScale ON " + LowRT.width + "x" + LowRT.height + " -> " + Screen.width + "x" + Screen.height + " (" + Main.S.toggleKey + " toggles) | " + Dlss.Describe();
+                }
             }
             else
             {
                 // skipUI is only meant to be forced while our patch is running; never leave it stuck on.
-                if (cam != null) { var bpp = cam.GetComponent<BattleTech.Rendering.BTPostProcess>(); if (bpp != null && bpp.skipUI && !SkipUI) bpp.skipUI = false; }
+                if (pp != null && pp.skipUI && !SkipUI) pp.skipUI = false;
                 if (cam != null && LowRT != null && cam.targetTexture == LowRT)
                 {
                     cam.targetTexture = null;
@@ -258,7 +318,7 @@ namespace BTScale
     static class BTPostProcess_OnRenderImage
     {
         internal class State { public RenderTexture Up, ElemComp, ElemOrig; }
-        static readonly int ElemId = Shader.PropertyToID("_BT_ElementUI");
+        static readonly int ElemId = Ids.ElementUI;
 
         static void Prefix(BTPostProcess __instance, ref RenderTexture source, ref RenderTexture destination, out State __state)
         {
@@ -305,11 +365,7 @@ namespace BTScale
                 if (Capture.Armed) Capture.Begin(source, up);
                 // The composite maps the UI with the built-in _ScreenParams, which still holds the low-res camera size here
                 // (Unity only sets it per camera). Post/UI shaders that turn pixel positions into UVs need the real size.
-                float sw = Screen.width, sh = Screen.height;
-                Shader.SetGlobalVector("_ScreenParams", new Vector4(sw, sh, 1f + 1f / sw, 1f + 1f / sh));
-                Shader.SetGlobalVector("_ScreenSize", new Vector4(sw, sh, 1f / sw, 1f / sh));
-                Shader.SetGlobalFloat("_BTScreenWidth", sw);
-                Shader.SetGlobalFloat("_BTScreenHeight", sh);
+                Ids.SetScreenSizeGlobals(Screen.width, Screen.height);
                 source = up;
                 destination = Scaler.GetFinalRT();
             }

@@ -6,12 +6,34 @@ using UnityEngine.PostProcessing;
 
 namespace BTScale
 {
+    // Shader property ids, looked up once instead of hashing a string every frame.
+    static class Ids
+    {
+        public static readonly int ScreenParams = Shader.PropertyToID("_ScreenParams");
+        public static readonly int ScreenSize = Shader.PropertyToID("_ScreenSize");
+        public static readonly int BTScreenWidth = Shader.PropertyToID("_BTScreenWidth");
+        public static readonly int BTScreenHeight = Shader.PropertyToID("_BTScreenHeight");
+        public static readonly int MotionVectors = Shader.PropertyToID("_CameraMotionVectorsTexture");
+        public static readonly int DepthTexture = Shader.PropertyToID("_CameraDepthTexture");
+        public static readonly int ElementUI = Shader.PropertyToID("_BT_ElementUI");
+
+        // Tell shaders that read the built-in / HBS screen size that the rest of the frame works at output resolution.
+        public static void SetScreenSizeGlobals(float sw, float sh)
+        {
+            Shader.SetGlobalVector(ScreenParams, new Vector4(sw, sh, 1f + 1f / sw, 1f + 1f / sh));
+            Shader.SetGlobalVector(ScreenSize, new Vector4(sw, sh, 1f / sw, 1f / sh));
+            Shader.SetGlobalFloat(BTScreenWidth, sw);
+            Shader.SetGlobalFloat(BTScreenHeight, sh);
+        }
+    }
+
     // DLSS replaces the PostProcessing stack's TAA step. From there on the stack (bloom, DOF, uber) runs at output resolution,
     // its result lands in Dlss.MidRT, and the BTPostProcess patch takes that as its source.
     [HarmonyPatch(typeof(PostProcessingBehaviour), "OnRenderImage")]
     static class PP_OnRenderImage
     {
         internal static bool WantOut;
+        static readonly System.Reflection.FieldInfo TaaField = AccessTools.Field(typeof(PostProcessingBehaviour), "m_Taa");
 
         static void Prefix(PostProcessingBehaviour __instance, RenderTexture source, ref RenderTexture destination)
         {
@@ -22,7 +44,7 @@ namespace BTScale
                 if (!Scaler.Active(cam)) return;
                 Dlss.Tick(source.width, source.height, Screen.width, Screen.height, source);
                 if (!Dlss.Ready) return;
-                var taa = Traverse.Create(__instance).Field("m_Taa").GetValue<TaaComponent>();
+                var taa = TaaField.GetValue(__instance) as TaaComponent;
                 if (taa == null || !taa.active || !__instance.useAntiAliasing || BTScreenShot.screenshotInProgress) return;
                 destination = Dlss.MidRT;
                 Dlss.MidFrame = Time.frameCount;
@@ -61,14 +83,10 @@ namespace BTScale
             try
             {
                 // Everything after this point works at output resolution; shaders reading the built-in screen size must agree.
-                float sw = Screen.width, sh = Screen.height;
-                Shader.SetGlobalVector("_ScreenParams", new Vector4(sw, sh, 1f + 1f / sw, 1f + 1f / sh));
-                Shader.SetGlobalVector("_ScreenSize", new Vector4(sw, sh, 1f / sw, 1f / sh));
-                Shader.SetGlobalFloat("_BTScreenWidth", sw);
-                Shader.SetGlobalFloat("_BTScreenHeight", sh);
+                Ids.SetScreenSizeGlobals(Screen.width, Screen.height);
 
-                var mv = Shader.GetGlobalTexture("_CameraMotionVectorsTexture") as RenderTexture;
-                var depth = Shader.GetGlobalTexture("_CameraDepthTexture") as RenderTexture;
+                var mv = Shader.GetGlobalTexture(Ids.MotionVectors) as RenderTexture;
+                var depth = Shader.GetGlobalTexture(Ids.DepthTexture) as RenderTexture;
                 if (Capture.Armed) Capture.DumpMotion(mv, source.width);
                 if (!Dlss.Evaluate(source, depth, mv, destination, source.width, source.height))
                     Graphics.Blit(source, destination);      // inputs missing this frame: plain stretch

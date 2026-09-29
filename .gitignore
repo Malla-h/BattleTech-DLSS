@@ -1,6 +1,8 @@
 bin/
 obj/
 *.log
+*.old
 *.png
+dist/
 BTScale.user.json
 .vs/

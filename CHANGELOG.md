@@ -1,0 +1,13 @@
+# Changelog
+
+## 0.9.0
+First complete version.
+- Low-resolution combat render with DLSS upscaling, full-resolution HUD and post-process.
+- Settings menu (F11): quality mode from DLAA to Ultra Performance, DLSS preset (Default/J/K/L/M), texture sharpness bias, saved to
+  `BTScale.user.json`.
+- Corrected mouse picking, hover, nameplates and edge-of-screen indicators at the internal resolution.
+- Own jitter (Halton, sized for the render scale) and confirmed sign conventions for jitter and motion vectors.
+- Texture mip bias for the lower render resolution; transparents and VFX use the jittered projection.
+- Mech outline / move-cursor texture handled to stay aligned; small residual shimmer remains.
+- Developer tools kept behind `"debug": true`.
+- Logs rotate per session and are size-capped. Per-frame lookups cached.
