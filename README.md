@@ -49,9 +49,9 @@ the game is not waiting on the GPU there.
 
 ## Notes and known limitations
 - Only the combat camera is scaled. Menus, the star map and the mech bay are unchanged.
-- Mech outlines, the move cursor and mission-boundary lines are drawn into a low-resolution overlay that is composited after DLSS. Their
-  edges can flicker slightly where they cross depth edges (rocks, the treeline). Jittering transparents would make the outlines worse, so it
-  is off by default.
+- Mech outlines, the move cursor and mission-boundary lines are rendered at output resolution (menu option, on by default) and
+  composited after DLSS. They keep the game's own hard 1-pixel edge look, and can still flicker slightly where they cross depth edges
+  (rocks, the treeline), as they do without DLSS. Jittering transparents would make them worse, so that is off by default.
 - The volumetric fog is applied before DLSS and has no motion vectors of its own, so it can lag slightly during fast camera moves.
 - Particle resolution follows the game's own effects-quality setting.
 - If the game's own anti-aliasing option is off, DLSS does not run (the game's TAA path is what enables the jitter DLSS needs).

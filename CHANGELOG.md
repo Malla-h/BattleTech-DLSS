@@ -15,3 +15,9 @@ First complete version.
 - Depth-reconstruction matrices (`_BT_InvVP`, `_BT_ViewProjection`, `_GlobalProjection`) are re-published after the jitter so decals and
   boundary lines no longer shimmer as a whole (`syncJitterMatrices`).
 - Debug benchmark: all quality modes and DLSS presets, average/1 % low FPS, VRAM and DLSS GPU time.
+- Mech outlines, the move cursor and the mission boundary are rendered at output resolution (`fullResOutlines`, default on), so they
+  no longer look like a low-resolution render next to the DLSS image and are much steadier. Costs some VRAM (about 100 MB).
+- Fixed hover and click on units outside the bottom-left part of the screen: Unity's PhysicsRaycaster rejects pointers outside
+  `camera.pixelRect`, which was only the internal-resolution rectangle.
+- DLSS history is reset on camera cuts (the game's own temporal-reset signal, plus a conservative jump detector).
+- Removed the experimental matrix-sync and unjitter code (no visible effect).
