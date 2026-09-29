@@ -21,6 +21,14 @@ namespace BTScale
             return true;
         }
 
+        // Unity's PhysicsRaycaster discards any pointer outside camera.pixelRect before casting. With the camera rendering into a smaller
+        // texture that rect covers only the bottom-left part of the screen, so hover and clicks died outside it.
+        public static Rect PixelRect(Camera c)
+        {
+            float kx, ky;
+            return Scaled(c, out kx, out ky) ? new Rect(0f, 0f, Screen.width, Screen.height) : c.pixelRect;
+        }
+
         public static Ray ScreenPointToRay(Camera c, Vector3 p)
         {
             float kx, ky;
@@ -51,6 +59,7 @@ namespace BTScale
             { "ScreenPointToRay", typeof(CamProxy).GetMethod("ScreenPointToRay") },
             { "ScreenToWorldPoint", typeof(CamProxy).GetMethod("ScreenToWorldPoint") },
             { "WorldToScreenPoint", typeof(CamProxy).GetMethod("WorldToScreenPoint") },
+            { "get_pixelRect", typeof(CamProxy).GetMethod("PixelRect") },
         };
 
         static MethodInfo Replacement(object operand)
@@ -60,6 +69,7 @@ namespace BTScale
             MethodInfo r;
             if (!Map.TryGetValue(m.Name, out r)) return null;
             var ps = m.GetParameters();
+            if (m.Name == "get_pixelRect") return ps.Length == 0 ? r : null;
             return ps.Length == 1 && ps[0].ParameterType == typeof(Vector3) ? r : null;
         }
 
