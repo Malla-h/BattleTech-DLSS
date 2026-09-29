@@ -34,7 +34,7 @@ namespace BTScale
     {
         internal static bool WantOut;
         static readonly System.Reflection.FieldInfo TaaField = AccessTools.Field(typeof(PostProcessingBehaviour), "m_Taa");
-        static bool flagsLogged, halfVfxOverridden, halfVfxOriginal;
+        static bool flagsLogged;
 
         static void Prefix(PostProcessingBehaviour __instance, RenderTexture source, ref RenderTexture destination)
         {
@@ -49,13 +49,6 @@ namespace BTScale
                     Main.Log("Game post flags: useHalfVFX=" + __instance.useHalfVFX + " useMotionBlur=" + __instance.useMotionBlur + " useAmbientOcclusion=" + __instance.useAmbientOcclusion
                         + " useSSR=" + __instance.useSSR + " useAntiAliasing=" + __instance.useAntiAliasing);
                 }
-                // The game draws its VFX layer at half the internal resolution unless effects quality is at maximum. Optionally force full.
-                if (Main.S.fullVfx)
-                {
-                    if (!halfVfxOverridden) { halfVfxOriginal = __instance.useHalfVFX; halfVfxOverridden = true; }
-                    __instance.useHalfVFX = false;
-                }
-                else if (halfVfxOverridden) { __instance.useHalfVFX = halfVfxOriginal; halfVfxOverridden = false; }
                 Dlss.Tick(source.width, source.height, Screen.width, Screen.height, source);
                 if (!Dlss.Ready) return;
                 var taa = TaaField.GetValue(__instance) as TaaComponent;

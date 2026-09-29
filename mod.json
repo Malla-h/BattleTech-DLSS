@@ -10,7 +10,7 @@
     "mipLevel": 0,
     "dlss": true,
     "jitterTransparents": false,
-    "fullVfx": false,
+    "syncJitterMatrices": true,
     "debug": false,
     "toggleKey": "F8",
     "menuKey": "F11"

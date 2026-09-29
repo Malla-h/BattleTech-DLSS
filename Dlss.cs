@@ -17,6 +17,18 @@ namespace BTScale
         [DllImport("BTDLSS")] static extern int BTDLSS_GetEvalCount();
         [DllImport("BTDLSS")] static extern int BTDLSS_StructSizes(int which);
         [DllImport("BTDLSS")] static extern int BTDLSS_GetVramMB(out ulong usageMB, out ulong budgetMB);
+        [DllImport("BTDLSS")] static extern void BTDLSS_ResetEvalTiming();
+        [DllImport("BTDLSS")] static extern int BTDLSS_GetEvalTiming(out ulong totalUs, out ulong count);
+
+        // Average GPU milliseconds the DLSS evaluate call took since ResetTiming (from timestamp queries around the call).
+        public static void ResetTiming() { if (loaded) try { BTDLSS_ResetEvalTiming(); } catch { } }
+        public static bool AvgEvalMs(out double ms, out ulong samples)
+        {
+            ms = 0; samples = 0;
+            if (!loaded) return false;
+            try { ulong us; if (BTDLSS_GetEvalTiming(out us, out samples) != 1 || samples == 0) return false; ms = us / (double)samples / 1000.0; return true; }
+            catch { return false; }
+        }
 
         // VRAM this process uses and the budget the OS gives it. Only available once the native plugin has a device.
         public static bool VramMB(out ulong usage, out ulong budget)

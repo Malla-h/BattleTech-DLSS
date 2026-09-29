@@ -6,22 +6,26 @@ using UnityEngine;
 
 namespace BTScale
 {
-    // Debug tool: steps through native rendering and every quality mode on a still camera and logs average FPS, 1 % low,
-    // frame time and VRAM for each, so the cost of each mode is measured in one run instead of read off an overlay.
+    // Debug tool: steps through native rendering, every quality mode and the DLSS presets on a still camera and logs average FPS,
+    // 1 % low, frame time, VRAM and the GPU time of the DLSS pass itself. The FPS numbers can hit a CPU limit (several modes then read the
+    // same), which is why the DLSS GPU time is measured separately with timestamp queries.
     public class Bench : MonoBehaviour
     {
-        struct Step { public string name; public bool pipeline, dlss; public string quality; }
+        struct Step { public string name; public bool pipeline, dlss; public string quality, preset; }
+
+        static Step Mode(string name, string quality, string preset = "K") { return new Step { name = name + " [" + preset + "]", pipeline = true, dlss = true, quality = quality, preset = preset }; }
 
         static readonly Step[] Steps =
         {
             new Step { name = "Native (pipeline off)", pipeline = false, dlss = false },
-            new Step { name = "DLAA", pipeline = true, dlss = true, quality = "DLAA" },
-            new Step { name = "Ultra Quality", pipeline = true, dlss = true, quality = "Ultra Quality" },
-            new Step { name = "Quality", pipeline = true, dlss = true, quality = "Quality" },
-            new Step { name = "Balanced", pipeline = true, dlss = true, quality = "Balanced" },
-            new Step { name = "Performance", pipeline = true, dlss = true, quality = "Performance" },
-            new Step { name = "Ultra Performance", pipeline = true, dlss = true, quality = "Ultra Performance" },
-            new Step { name = "Quality, DLSS off (bilinear)", pipeline = true, dlss = false, quality = "Quality" },
+            // Quality modes, all with preset K
+            Mode("DLAA", "DLAA"), Mode("Ultra Quality", "Ultra Quality"), Mode("Quality", "Quality"), Mode("Balanced", "Balanced"),
+            Mode("Performance", "Performance"), Mode("Ultra Performance", "Ultra Performance"),
+            new Step { name = "Quality, DLSS off (bilinear)", pipeline = true, dlss = false, quality = "Quality", preset = "K" },
+            // Presets at fixed modes (the mode sweep above already covers K)
+            Mode("Quality", "Quality", "J"), Mode("Quality", "Quality", "L"), Mode("Quality", "Quality", "M"), Mode("Quality", "Quality", "Default"),
+            Mode("Performance", "Performance", "L"), Mode("Performance", "Performance", "M"),
+            Mode("DLAA", "DLAA", "M"),
         };
 
         const float Settle = 3f, Sample = 8f, ReadyTimeout = 15f;
@@ -43,18 +47,11 @@ namespace BTScale
             if (Running) GUI.Label(new Rect(10, 30, 1000, 24), status);
         }
 
-        static bool Pipeline(bool want)
-        {
-            var cam = Scaler.MainCam;
-            bool on = Scaler.Active(cam);
-            return on == want;
-        }
-
         IEnumerator Run()
         {
             Running = true;
             var s = Main.S;
-            string q0 = s.quality; bool pipeline0 = Scaler.Enabled, dlss0 = Dlss.Enabled, dlssSetting0 = s.dlss;
+            string q0 = s.quality, p0 = s.preset; bool pipeline0 = Scaler.Enabled, dlss0 = Dlss.Enabled, dlssSetting0 = s.dlss;
             var report = new StringBuilder();
             Main.Log("BENCH start: " + SystemInfo.graphicsDeviceName + ", " + Screen.width + "x" + Screen.height + ", keep the camera still");
 
@@ -63,7 +60,9 @@ namespace BTScale
                 var st = Steps[i];
                 Scaler.Enabled = st.pipeline;
                 Dlss.Enabled = st.dlss; s.dlss = st.dlss;
-                if (st.quality != null) { s.quality = st.quality; Main.ApplyToRuntime(); }
+                if (st.quality != null) s.quality = st.quality;
+                if (st.preset != null) s.preset = st.preset;
+                Main.ApplyToRuntime();
                 Dlss.Retry();
 
                 // Wait until the requested mode is really in effect (target recreated, DLSS ready), then let it settle.
@@ -73,7 +72,7 @@ namespace BTScale
                 while (Time.unscaledTime - t0 < ReadyTimeout)
                 {
                     status = label + " (switching)";
-                    bool right = Pipeline(st.pipeline);
+                    bool right = Scaler.Active(Scaler.MainCam) == st.pipeline;
                     if (right && st.pipeline)
                     {
                         var lo = Scaler.LowRT;
@@ -88,6 +87,7 @@ namespace BTScale
                 t0 = Time.unscaledTime;
                 while (Time.unscaledTime - t0 < Settle) { status = label + " (settling)"; yield return null; }
 
+                Dlss.ResetTiming();
                 var dts = new List<float>(1024);
                 t0 = Time.unscaledTime;
                 while (Time.unscaledTime - t0 < Sample)
@@ -103,13 +103,15 @@ namespace BTScale
                 float p50 = sorted[sorted.Length / 2] * 1000f;
                 float p99 = sorted[Mathf.Min(sorted.Length - 1, (int)(sorted.Length * 0.99f))] * 1000f;
                 ulong use, budget; bool haveVram = Dlss.VramMB(out use, out budget);
-                string line = string.Format("{0,-30} avg {1,6:F1} fps   median {2,6:F2} ms   1% low {3,6:F1} fps ({4,6:F2} ms)   VRAM {5}",
-                    st.name, avgFps, p50, 1000f / p99, p99, haveVram ? use + " / " + budget + " MB" : "n/a");
+                double dlssMs; ulong n; bool haveGpu = st.dlss && Dlss.AvgEvalMs(out dlssMs, out n);
+                dlssMs = 0; n = 0; if (haveGpu) Dlss.AvgEvalMs(out dlssMs, out n);
+                string line = string.Format("{0,-34} avg {1,6:F1} fps  median {2,6:F2} ms  1% low {3,6:F1} fps  DLSS GPU {4}  VRAM {5}",
+                    st.name, avgFps, p50, 1000f / p99, haveGpu ? dlssMs.ToString("F2") + " ms" : "   n/a", haveVram ? use + " MB" : "n/a");
                 report.AppendLine(line);
                 Main.Log("BENCH " + line);
             }
 
-            Scaler.Enabled = pipeline0; Dlss.Enabled = dlss0; s.dlss = dlssSetting0; s.quality = q0;
+            Scaler.Enabled = pipeline0; Dlss.Enabled = dlss0; s.dlss = dlssSetting0; s.quality = q0; s.preset = p0;
             Main.ApplyToRuntime(); Dlss.Retry();
             Main.Log("BENCH summary (" + SystemInfo.graphicsDeviceName + ", " + Screen.width + "x" + Screen.height + "):\n" + report);
             status = "";

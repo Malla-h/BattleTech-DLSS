@@ -16,7 +16,7 @@ namespace BTScale
         public int mipLevel = 0;               // index into MipBias.Levels: 0 full, 1 two thirds, 2 a third, 3 off
         public bool dlss = true;
         public bool jitterTransparents = false; // jitter transparents/VFX too: better for DLSS on particles, but mech outlines then wobble
-        public bool fullVfx = false;            // force the game's VFX layer to full internal resolution (it may use half)
+        public bool syncJitterMatrices = true;  // make depth-reconstruction matrices match the jittered depth (decals, boundary lines)
         public bool debug = false;             // developer tools: sign-flip keys, stage captures, screenshots, calibration
         public string toggleKey = "F8";        // whole render pipeline on/off
         public string menuKey = "F11";
