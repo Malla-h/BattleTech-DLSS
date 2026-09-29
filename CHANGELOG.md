@@ -21,3 +21,5 @@ First complete version.
   `camera.pixelRect`, which was only the internal-resolution rectangle.
 - DLSS history is reset on camera cuts (the game's own temporal-reset signal, plus a conservative jump detector).
 - Removed the experimental matrix-sync and unjitter code (no visible effect).
+- Hotkeys: only the menu key (F11) is bound by default, to stay clear of the F-keys players use for quick save/load and unit selection.
+  `toggleKey` and the new `dlssKey` are unbound by default and configurable (`"None"` = unbound); everything is also in the menu.

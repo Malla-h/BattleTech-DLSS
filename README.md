@@ -15,11 +15,15 @@ Copy the `BTScale` folder into `BATTLETECH\Mods\`. It must contain `BTScale.dll`
 Start the game and confirm BTScale is enabled in the mod manager.
 
 ## Use
-| Key | Action |
-|---|---|
-| **F11** | Open the settings menu (drag the window; **Save** keeps your choices) |
-| **F5** | DLSS on/off (off falls back to a plain stretch of the low-res image, useful for comparing) |
-| **F8** | Whole render-scale pipeline on/off (off is the vanilla renderer) |
+| Key | Action | Default |
+|---|---|---|
+| `menuKey` | Open the settings menu (drag the window; **Save** keeps your choices) | **F11** |
+| `dlssKey` | DLSS on/off (off falls back to a plain stretch of the low-res image, useful for comparing) | unbound |
+| `toggleKey` | Whole render-scale pipeline on/off (off is the vanilla renderer) | unbound |
+
+Only the menu is bound by default, because players commonly use F1 to F6, F8 and F9 for quick save, quick load and unit selection. Every
+setting, including both toggles, is in the menu. To bind a key, set it in `mod.json` (or `BTScale.user.json`) to a Unity key name such as
+`"F7"` or `"Insert"`; `"None"` leaves it unbound. If `menuKey` is unbound or invalid it falls back to F11.
 
 Menu options:
 - **Quality mode**: DLAA (native resolution), Ultra Quality (77 %), Quality (66.7 %), Balanced (58 %), Performance (50 %),
@@ -27,8 +31,7 @@ Menu options:
 - **DLSS preset**: Default lets NVIDIA choose per mode. K is the transformer model and the default here. L and M are heavier.
 - **Texture sharpness bias**: compensates for texture blur at lower internal resolutions (Full, 2/3, 1/3, Off).
 
-Settings are stored in `BTScale.user.json` in the mod folder (it overrides `mod.json`). Delete it to reset. The hotkeys `toggleKey` and
-`menuKey` can be changed in `mod.json`.
+Settings are stored in `BTScale.user.json` in the mod folder (it overrides `mod.json`). Delete it to reset.
 
 ## Performance (measured)
 RTX 5060, 3840x2160, one GPU-bound combat view, DLSS preset K. GPU time is the DLSS pass alone, from timestamp queries.

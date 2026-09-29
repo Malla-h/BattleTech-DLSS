@@ -12,7 +12,8 @@
     "jitterTransparents": false,
     "fullResOutlines": true,
     "debug": false,
-    "toggleKey": "F8",
-    "menuKey": "F11"
+    "menuKey": "F11",
+    "toggleKey": "None",
+    "dlssKey": "None"
   }
 }

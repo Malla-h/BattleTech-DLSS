@@ -14,7 +14,9 @@ namespace BTScale
 
         void Awake()
         {
-            try { key = (KeyCode)Enum.Parse(typeof(KeyCode), Main.S.menuKey, true); } catch { }
+            // The menu is the way to reach every setting, so it always has a key: an unbound or unknown menuKey falls back to F11.
+            var k = Main.ParseKey(Main.S.menuKey);
+            if (k != KeyCode.None) key = k; else Main.S.menuKey = "F11";
         }
 
         float calibAt;
@@ -31,6 +33,9 @@ namespace BTScale
             win = GUILayout.Window(0x7B5C, win, Draw, "BTScale - DLSS   (" + Main.S.menuKey + " to close)");
         }
 
+        // " (F8)" when a hotkey is bound, nothing otherwise.
+        static string KeyHint(string name) { return Main.ParseKey(name) == KeyCode.None ? "" : "  (" + name + ")"; }
+
         static string ResText(int qi)
         {
             int w = Mathf.Max(64, Mathf.RoundToInt(Screen.width * Main.QualityRatio[qi]) & ~1);
@@ -42,8 +47,8 @@ namespace BTScale
         {
             var s = Main.S;
 
-            Scaler.Enabled = GUILayout.Toggle(Scaler.Enabled, "Render-scale pipeline (" + s.toggleKey + ")");
-            bool dl = GUILayout.Toggle(Dlss.Enabled, "DLSS upscaling (F5)  -  off uses a plain stretch");
+            Scaler.Enabled = GUILayout.Toggle(Scaler.Enabled, "Render-scale pipeline  -  off is the vanilla renderer" + KeyHint(s.toggleKey));
+            bool dl = GUILayout.Toggle(Dlss.Enabled, "DLSS upscaling  -  off uses a plain stretch" + KeyHint(s.dlssKey));
             if (dl != Dlss.Enabled) { Dlss.Enabled = dl; s.dlss = dl; Dlss.Retry(); }
 
             GUILayout.Space(6);

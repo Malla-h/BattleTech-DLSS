@@ -18,8 +18,11 @@ namespace BTScale
         public bool jitterTransparents = false; // jitter transparents/VFX too: better for DLSS on particles, but mech outlines then wobble
         public bool fullResOutlines = true;     // render mech outlines / move cursor / mission boundary at output resolution
         public bool debug = false;             // developer tools: sign-flip keys, stage captures, screenshots, calibration
-        public string toggleKey = "F8";        // whole render pipeline on/off
+        // Hotkeys. Only the menu is bound by default: players use F1-F6, F8 and F9 for quick save/load and unit selection.
+        // Any of these accepts a Unity KeyCode name ("F7", "Insert", ...) or "None" to leave it unbound. Everything is also in the F11 menu.
         public string menuKey = "F11";
+        public string toggleKey = "None";      // whole render pipeline on/off
+        public string dlssKey = "None";        // DLSS on/off
     }
 
     public static class Main
@@ -37,6 +40,15 @@ namespace BTScale
         internal static readonly int[] PresetValue = { 0, 10, 11, 12, 13 };
 
         internal static string UserPath { get { return Path.Combine(Dir, "BTScale.user.json"); } }
+
+        // "None", empty or an unknown name means unbound.
+        internal static KeyCode ParseKey(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return KeyCode.None;
+            try { return (KeyCode)Enum.Parse(typeof(KeyCode), name, true); } catch { return KeyCode.None; }
+        }
+
+        internal static string KeyLabel(string name) { return ParseKey(name) == KeyCode.None ? "unbound" : name; }
 
         internal static int QualityIndex
         {
@@ -131,7 +143,7 @@ namespace BTScale
         internal static bool Enabled = true;
         internal static bool SkipUI;
 
-        KeyCode key = KeyCode.F8;
+        KeyCode key = KeyCode.None, dlssKey = KeyCode.None;
         string status = "";
         Camera presentCam;
         int stableFrames, shotCount;
@@ -139,7 +151,8 @@ namespace BTScale
 
         void Awake()
         {
-            try { key = (KeyCode)Enum.Parse(typeof(KeyCode), Main.S.toggleKey, true); } catch { }
+            key = Main.ParseKey(Main.S.toggleKey);
+            dlssKey = Main.ParseKey(Main.S.dlssKey);
 
             // Presents FinalRT to the screen. A camera with no target gets a correct full-screen viewport and clear.
             var go = new GameObject("BTScale Present");
@@ -240,8 +253,8 @@ namespace BTScale
         {
             bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
             // User keys. Plain keys must not fire when the same key is pressed together with Ctrl.
-            if (!ctrl && Input.GetKeyDown(key)) { Enabled = !Enabled; Main.Log("Toggled, Enabled=" + Enabled); }
-            if (!ctrl && Input.GetKeyDown(KeyCode.F5)) { Dlss.Enabled = !Dlss.Enabled; Main.S.dlss = Dlss.Enabled; Dlss.Retry(); Main.Log("DLSS enabled=" + Dlss.Enabled); }
+            if (!ctrl && key != KeyCode.None && Input.GetKeyDown(key)) { Enabled = !Enabled; Main.Log("Toggled, Enabled=" + Enabled); }
+            if (!ctrl && dlssKey != KeyCode.None && Input.GetKeyDown(dlssKey)) { Dlss.Enabled = !Dlss.Enabled; Main.S.dlss = Dlss.Enabled; Dlss.Retry(); Main.Log("DLSS enabled=" + Dlss.Enabled); }
 
             // Developer tools, hidden unless "debug": true is set in mod.json or BTScale.user.json.
             //   F7 stage capture, F6 skipUI, Ctrl+F1..F4 motion-vector/jitter sign flips (settled at -1,-1), Ctrl+F5 no jitter,
@@ -286,7 +299,7 @@ namespace BTScale
                 if (Time.unscaledTime >= nextStatusAt)     // building this string every frame allocates for nothing
                 {
                     nextStatusAt = Time.unscaledTime + 0.25f;
-                    status = (SkipUI ? "[skipUI] " : "") + "BTScale ON " + LowRT.width + "x" + LowRT.height + " -> " + Screen.width + "x" + Screen.height + " (" + Main.S.toggleKey + " toggles) | " + Dlss.Describe();
+                    status = (SkipUI ? "[skipUI] " : "") + "BTScale ON " + LowRT.width + "x" + LowRT.height + " -> " + Screen.width + "x" + Screen.height + " (menu: " + Main.KeyLabel(Main.S.menuKey) + ") | " + Dlss.Describe();
                 }
             }
             else
@@ -298,7 +311,7 @@ namespace BTScale
                     cam.targetTexture = null;
                     Main.Log("Camera restored to screen");
                 }
-                status = IsCombatCamera(cam) ? "BTScale OFF (" + Main.S.toggleKey + " toggles)" : "";
+                status = IsCombatCamera(cam) ? "BTScale OFF (menu: " + Main.KeyLabel(Main.S.menuKey) + ")" : "";
             }
         }
 
