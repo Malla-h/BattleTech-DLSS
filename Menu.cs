@@ -69,6 +69,7 @@ namespace BTScale
                 if (GUILayout.Button("Start calibration in 3 s")) { calibAt = Time.realtimeSinceStartup + 3f; show = false; }
                 if (GUILayout.Button("Toggle outline mode (" + (PP_OnPreCull_Outline.Unjitter ? "unjitter" : "shift") + ")")) { PP_OnPreCull_Outline.Unjitter = !PP_OnPreCull_Outline.Unjitter; }
                 GUILayout.EndHorizontal();
+                if (GUILayout.Button("[debug] Run benchmark over all modes (~1.5 min, keep the camera still)")) { show = false; Bench.Start(); }
             }
 
             GUILayout.Space(8);

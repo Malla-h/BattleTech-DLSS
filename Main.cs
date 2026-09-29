@@ -85,6 +85,7 @@ namespace BTScale
             go.AddComponent<Scaler>();
             go.AddComponent<MipBias>();
             go.AddComponent<Menu>();
+            go.AddComponent<Bench>();
         }
 
         // Logs are per session: the previous one is kept as .old, and a session stops logging past a size cap.
@@ -203,6 +204,7 @@ namespace BTScale
         }
 
         static bool IsCombatCamera(Camera c) { return c != null && c == MainCam && combatCam; }
+        internal static bool InCombat { get { return IsCombatCamera(MainCam); } }
 
         internal static bool Active(Camera c)
         {

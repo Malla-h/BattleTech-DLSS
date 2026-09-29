@@ -16,6 +16,15 @@ namespace BTScale
         [DllImport("BTDLSS")] static extern uint BTDLSS_GetLastResult();
         [DllImport("BTDLSS")] static extern int BTDLSS_GetEvalCount();
         [DllImport("BTDLSS")] static extern int BTDLSS_StructSizes(int which);
+        [DllImport("BTDLSS")] static extern int BTDLSS_GetVramMB(out ulong usageMB, out ulong budgetMB);
+
+        // VRAM this process uses and the budget the OS gives it. Only available once the native plugin has a device.
+        public static bool VramMB(out ulong usage, out ulong budget)
+        {
+            usage = budget = 0;
+            if (!loaded) return false;
+            try { return BTDLSS_GetVramMB(out usage, out budget) == 1; } catch { return false; }
+        }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         struct CreateData
