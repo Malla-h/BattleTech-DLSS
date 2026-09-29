@@ -121,7 +121,7 @@ namespace BTScale
         {
             if (!Main.S.debug) return "DLSS " + (Enabled ? state.ToString() : "disabled");
             return "DLSS " + (Enabled ? state.ToString() : "disabled") + (loaded ? " status=" + BTDLSS_GetStatus() + " evals=" + BTDLSS_GetEvalCount() : "")
-                + " jit(" + JitSx + "," + JitSy + ")" + (NoJitter ? "[OFF]" : "") + " mv(" + MvSx + "," + MvSy + ") mip=" + MipBias.Current.ToString("F2") + " outl=" + (PP_OnPreCull_Outline.Unjitter ? "unjit" : "shift" + OutlineSign);
+                + " jit(" + JitSx + "," + JitSy + ")" + (NoJitter ? "[OFF]" : "") + " mv(" + MvSx + "," + MvSy + ") mip=" + MipBias.Current.ToString("F2") + " outl=" + (Main.S.fullResOutlines ? "fullres" : "lowres");
         }
 
         static bool Load()

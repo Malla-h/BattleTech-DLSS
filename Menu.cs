@@ -57,6 +57,9 @@ namespace BTScale
             if (pi != Main.PresetIndex) { s.preset = Main.PresetNames[pi]; Main.ApplyToRuntime(); Dlss.Retry(); }
 
             GUILayout.Space(6);
+            s.fullResOutlines = GUILayout.Toggle(s.fullResOutlines, "Full-resolution mech outlines, move cursor and mission boundary");
+
+            GUILayout.Space(6);
             GUILayout.Label("Texture sharpness bias (compensates the lower render resolution)");
             int mi = GUILayout.SelectionGrid(MipBias.Level, MipNames, 4);
             if (mi != MipBias.Level) { s.mipLevel = mi; MipBias.SetLevel(mi); }
@@ -65,11 +68,9 @@ namespace BTScale
             {
                 GUILayout.Space(6);
                 s.jitterTransparents = GUILayout.Toggle(s.jitterTransparents, "[debug] Jitter particles too (no visible gain seen; mech outlines wobble)");
-                s.syncJitterMatrices = GUILayout.Toggle(s.syncJitterMatrices, "[debug] Sync depth-reconstruction matrices with the jitter (decals, boundary lines)");
                 GUILayout.Label("[debug] Outline calibration: close this menu, keep the camera still with a mech outline visible");
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Start calibration in 3 s")) { calibAt = Time.realtimeSinceStartup + 3f; show = false; }
-                if (GUILayout.Button("Toggle outline mode (" + (PP_OnPreCull_Outline.Unjitter ? "unjitter" : "shift") + ")")) { PP_OnPreCull_Outline.Unjitter = !PP_OnPreCull_Outline.Unjitter; }
                 GUILayout.EndHorizontal();
                 if (GUILayout.Button("[debug] Run benchmark over all modes (~1.5 min, keep the camera still)")) { show = false; Bench.Start(); }
             }

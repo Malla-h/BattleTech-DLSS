@@ -16,7 +16,7 @@ namespace BTScale
             rows.Clear();
             sheet.Clear();
             Left = 32;
-            Main.Log("CAL start (outline unjitter=" + PP_OnPreCull_Outline.Unjitter + ", outlineSign=" + Dlss.OutlineSign + ")");
+            Main.Log("CAL start (fullResOutlines=" + Main.S.fullResOutlines + ", jitterTransparents=" + Main.S.jitterTransparents + ", outlineSign=" + Dlss.OutlineSign + ")");
         }
 
         public static void Sample(RenderTexture elem, bool fromDlss)
@@ -88,7 +88,7 @@ namespace BTScale
                 for (int i = 0; i < fill.Length; i++) fill[i] = new Color32(255, 255, 255, 255);
                 o.SetPixels32(fill);
                 for (int k = 0; k < 6; k++) o.SetPixels32((k % 3) * (C + 10), (k / 3) * (C + 10), C, C, sheet[k]);
-                System.IO.File.WriteAllBytes(System.IO.Path.Combine(Main.Dir, "calib_sheet_" + (PP_OnPreCull_Outline.Unjitter ? "unjit" : "shift") + ".png"), o.EncodeToPNG());
+                System.IO.File.WriteAllBytes(System.IO.Path.Combine(Main.Dir, "calib_sheet_" + (Main.S.fullResOutlines ? "fullres" : "lowres") + ".png"), o.EncodeToPNG());
                 UnityEngine.Object.Destroy(o);
                 Main.Log("CAL sheet written, window origin (" + ox + "," + oy + ") size " + C);
             }

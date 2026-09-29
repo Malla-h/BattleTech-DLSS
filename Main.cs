@@ -16,7 +16,7 @@ namespace BTScale
         public int mipLevel = 0;               // index into MipBias.Levels: 0 full, 1 two thirds, 2 a third, 3 off
         public bool dlss = true;
         public bool jitterTransparents = false; // jitter transparents/VFX too: better for DLSS on particles, but mech outlines then wobble
-        public bool syncJitterMatrices = true;  // make depth-reconstruction matrices match the jittered depth (decals, boundary lines)
+        public bool fullResOutlines = true;     // render mech outlines / move cursor / mission boundary at output resolution
         public bool debug = false;             // developer tools: sign-flip keys, stage captures, screenshots, calibration
         public string toggleKey = "F8";        // whole render pipeline on/off
         public string menuKey = "F11";
@@ -225,7 +225,7 @@ namespace BTScale
             if (ctrl && Input.GetKeyDown(KeyCode.F6)) MipBias.Cycle();
             if (ctrl && Input.GetKeyDown(KeyCode.F8)) { Dlss.OutlineSign = -Dlss.OutlineSign; Main.Log("OutlineSign=" + Dlss.OutlineSign); }
             if (ctrl && Input.GetKeyDown(KeyCode.F10)) Calib.Start();
-            if (ctrl && Input.GetKeyDown(KeyCode.F9)) { PP_OnPreCull_Outline.Unjitter = !PP_OnPreCull_Outline.Unjitter; Main.Log("Outline unjitter=" + PP_OnPreCull_Outline.Unjitter); }
+            if (ctrl && Input.GetKeyDown(KeyCode.F9)) { Main.S.fullResOutlines = !Main.S.fullResOutlines; Main.Log("fullResOutlines=" + Main.S.fullResOutlines); }
             // Ctrl+F7: full-resolution screenshot of exactly what is on screen, named by rendering mode, for offline comparison.
             if (ctrl && Input.GetKeyDown(KeyCode.F7))
             {
@@ -361,7 +361,7 @@ namespace BTScale
                     // Sample them shifted by this frame's jitter to cancel it.
                     Vector2 shift = Vector2.zero;
                     // Only needed when transparents are jittered: in vanilla the outlines are drawn unjittered and need no correction.
-                    if (fromDlss && Main.S.jitterTransparents && !PP_OnPreCull_Outline.Unjitter) shift = Dlss.OutlineSign * new Vector2(Dlss.JitterPx.x / elem.width, Dlss.JitterPx.y / elem.height);
+                    if (fromDlss && Main.S.jitterTransparents) shift = Dlss.OutlineSign * new Vector2(Dlss.JitterPx.x / elem.width, Dlss.JitterPx.y / elem.height);
                     Graphics.Blit(elem, ec, Vector2.one, shift);
                     Shader.SetGlobalTexture(ElemId, ec);
                     __state.ElemComp = ec;
