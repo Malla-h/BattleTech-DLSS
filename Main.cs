@@ -23,6 +23,7 @@ namespace BTScale
         public string menuKey = "F11";
         public string toggleKey = "None";      // whole render pipeline on/off
         public string dlssKey = "None";        // DLSS on/off
+        public string hideUiKey = "None";      // hide the whole game UI (and this mod's text) for clean screenshots
     }
 
     public static class Main
@@ -143,7 +144,8 @@ namespace BTScale
         internal static bool Enabled = true;
         internal static bool SkipUI;
 
-        KeyCode key = KeyCode.None, dlssKey = KeyCode.None;
+        KeyCode key = KeyCode.None, dlssKey = KeyCode.None, hideUiKey = KeyCode.None;
+        static bool skipForced;                       // we set the game's skipUI flag; only then do we clear it again
         string status = "";
         Camera presentCam;
         int stableFrames, shotCount;
@@ -153,6 +155,7 @@ namespace BTScale
         {
             key = Main.ParseKey(Main.S.toggleKey);
             dlssKey = Main.ParseKey(Main.S.dlssKey);
+            hideUiKey = Main.ParseKey(Main.S.hideUiKey);
 
             // Presents FinalRT to the screen. A camera with no target gets a correct full-screen viewport and clear.
             var go = new GameObject("BTScale Present");
@@ -229,7 +232,6 @@ namespace BTScale
         void DebugKeys(bool ctrl)
         {
             if (!ctrl && Input.GetKeyDown(KeyCode.F7)) { Capture.Armed = true; Main.Log("Capture armed"); }
-            if (!ctrl && Input.GetKeyDown(KeyCode.F6)) { SkipUI = !SkipUI; Main.Log("SkipUI=" + SkipUI); }
             if (ctrl && Input.GetKeyDown(KeyCode.F1)) { Dlss.MvSx = -Dlss.MvSx; Main.Log("MvSx=" + Dlss.MvSx); }
             if (ctrl && Input.GetKeyDown(KeyCode.F2)) { Dlss.MvSy = -Dlss.MvSy; Main.Log("MvSy=" + Dlss.MvSy); }
             if (ctrl && Input.GetKeyDown(KeyCode.F3)) { Dlss.JitSx = -Dlss.JitSx; Main.Log("JitSx=" + Dlss.JitSx); }
@@ -254,10 +256,11 @@ namespace BTScale
             bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
             // User keys. Plain keys must not fire when the same key is pressed together with Ctrl.
             if (!ctrl && key != KeyCode.None && Input.GetKeyDown(key)) { Enabled = !Enabled; Main.Log("Toggled, Enabled=" + Enabled); }
+            if (!ctrl && hideUiKey != KeyCode.None && Input.GetKeyDown(hideUiKey)) SkipUI = !SkipUI;
             if (!ctrl && dlssKey != KeyCode.None && Input.GetKeyDown(dlssKey)) { Dlss.Enabled = !Dlss.Enabled; Main.S.dlss = Dlss.Enabled; Dlss.Retry(); Main.Log("DLSS enabled=" + Dlss.Enabled); }
 
             // Developer tools, hidden unless "debug": true is set in mod.json or BTScale.user.json.
-            //   F7 stage capture, F6 skipUI, Ctrl+F1..F4 motion-vector/jitter sign flips (settled at -1,-1), Ctrl+F5 no jitter,
+            //   F7 stage capture, Ctrl+F1..F4 motion-vector/jitter sign flips (settled at -1,-1), Ctrl+F5 no jitter,
             //   Ctrl+F6 mip level, Ctrl+F7 4K screenshot, Ctrl+F8 outline shift direction, Ctrl+F9 outline unjitter, Ctrl+F10 calibration.
             if (Main.S.debug) DebugKeys(ctrl);
 
@@ -271,6 +274,11 @@ namespace BTScale
             if (presentCam.enabled != want) presentCam.enabled = want;
 
             // Our own jitter for DLSS; the game's stays untouched whenever DLSS is not running.
+            // Hide UI (works with or without the render-scale pipeline). The flag is the game's own; write it only while we are the ones
+            // holding it, so the game's own use of it (its debug fly camera) is never overwritten.
+            if (SkipUI) { if (pp != null && !pp.skipUI) pp.skipUI = true; skipForced = true; }
+            else if (skipForced) { if (pp != null) pp.skipUI = false; skipForced = false; }
+
             var ppb = cachedPpb;
             if (ppb != null)
             {
@@ -299,13 +307,11 @@ namespace BTScale
                 if (Time.unscaledTime >= nextStatusAt)     // building this string every frame allocates for nothing
                 {
                     nextStatusAt = Time.unscaledTime + 0.25f;
-                    status = (SkipUI ? "[skipUI] " : "") + "BTScale ON " + LowRT.width + "x" + LowRT.height + " -> " + Screen.width + "x" + Screen.height + " (menu: " + Main.KeyLabel(Main.S.menuKey) + ") | " + Dlss.Describe();
+                    status = "BTScale ON " + LowRT.width + "x" + LowRT.height + " -> " + Screen.width + "x" + Screen.height + " (menu: " + Main.KeyLabel(Main.S.menuKey) + ") | " + Dlss.Describe();
                 }
             }
             else
             {
-                // skipUI is only meant to be forced while our patch is running; never leave it stuck on.
-                if (pp != null && pp.skipUI && !SkipUI) pp.skipUI = false;
                 if (cam != null && LowRT != null && cam.targetTexture == LowRT)
                 {
                     cam.targetTexture = null;
@@ -317,7 +323,7 @@ namespace BTScale
 
         void OnGUI()
         {
-            if (status.Length > 0) GUI.Label(new Rect(10, 6, 700, 24), status);
+            if (status.Length > 0 && !SkipUI) GUI.Label(new Rect(10, 6, 700, 24), status);
         }
     }
 
@@ -344,7 +350,6 @@ namespace BTScale
             {
                 var cam = __instance.GetComponent<Camera>();
                 if (!Scaler.Active(cam)) return;
-                __instance.skipUI = Scaler.SkipUI;
                 // DLSS path: the PostProcessing stack already produced a full-resolution image. Otherwise stretch the low-res one.
                 bool fromDlss = Dlss.MidRT != null && Dlss.MidFrame == Time.frameCount;
                 RenderTexture up;

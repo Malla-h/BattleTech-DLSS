@@ -20,6 +20,7 @@ Start the game and confirm BTScale is enabled in the mod manager.
 | `menuKey` | Open the settings menu (drag the window; **Save** keeps your choices) | **F11** |
 | `dlssKey` | DLSS on/off (off falls back to a plain stretch of the low-res image, useful for comparing) | unbound |
 | `toggleKey` | Whole render-scale pipeline on/off (off is the vanilla renderer) | unbound |
+| `hideUiKey` | Hide the whole game UI (and this mod's own text) for clean screenshots | unbound |
 
 Only the menu is bound by default, because players commonly use F1 to F6, F8 and F9 for quick save, quick load and unit selection. Every
 setting, including both toggles, is in the menu. To bind a key, set it in `mod.json` (or `BTScale.user.json`) to a Unity key name such as
@@ -30,6 +31,8 @@ Menu options:
   Ultra Performance (33 %). Higher percentages look better and cost more GPU time.
 - **DLSS preset**: Default lets NVIDIA choose per mode. K is the transformer model and the default here. L and M are heavier.
 - **Texture sharpness bias**: compensates for texture blur at lower internal resolutions (Full, 2/3, 1/3, Off).
+- **Hide the game UI**: removes the HUD, tooltips, outlines and this mod's text so you can take clean screenshots. Close the menu to
+  see the result; open it again to switch the UI back on. It works with or without the render-scale pipeline. Bind `hideUiKey` for a hotkey.
 
 Settings are stored in `BTScale.user.json` in the mod folder (it overrides `mod.json`). Delete it to reset.
 

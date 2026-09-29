@@ -23,3 +23,5 @@ First complete version.
 - Removed the experimental matrix-sync and unjitter code (no visible effect).
 - Hotkeys: only the menu key (F11) is bound by default, to stay clear of the F-keys players use for quick save/load and unit selection.
   `toggleKey` and the new `dlssKey` are unbound by default and configurable (`"None"` = unbound); everything is also in the menu.
+- New "Hide the game UI" option (menu checkbox and optional `hideUiKey`) for clean screenshots, no longer a debug-only tool. It only
+  writes the game's own `skipUI` flag while it is holding it, so the game's debug fly-camera use of that flag is not disturbed.
