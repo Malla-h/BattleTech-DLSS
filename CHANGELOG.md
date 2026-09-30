@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.1
+- Clearer install instructions, with a direct link to the single `nvngx_dlss.dll` file players have to get from NVIDIA and how to check it.
+- If `nvngx_dlss.dll` is missing (or DLSS otherwise cannot run), the mod now falls back to the game's normal renderer with a short on-screen message
+  and an explanation in the menu, instead of showing a blurry low-resolution stretch. Adding the file and changing any setting picks it up without a
+  restart.
+
 ## 0.9.0
 First complete version.
 - Low-resolution combat render with DLSS upscaling, full-resolution HUD and post-process.

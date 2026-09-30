@@ -270,7 +270,9 @@ namespace BTScale
             bool loading = pp != null && pp.loadingCam;
             // Wait for the combat camera to settle (and the loading screen to end) before redirecting its output.
             if (combat && !loading) stableFrames++; else stableFrames = 0;
-            bool want = Enabled && stableFrames > 30;
+            // If DLSS is on but cannot run (missing runtime file, unsupported setting...), show the normal renderer, not a blurry low-res stretch.
+            bool dlssBroken = Dlss.Enabled && Dlss.Failed;
+            bool want = Enabled && stableFrames > 30 && !dlssBroken;
             if (presentCam.enabled != want) presentCam.enabled = want;
 
             // Our own jitter for DLSS; the game's stays untouched whenever DLSS is not running.
@@ -317,7 +319,9 @@ namespace BTScale
                     cam.targetTexture = null;
                     Main.Log("Camera restored to screen");
                 }
-                status = IsCombatCamera(cam) ? "BTScale OFF (menu: " + Main.KeyLabel(Main.S.menuKey) + ")" : "";
+                status = !IsCombatCamera(cam) ? ""
+                    : dlssBroken ? "BTScale: DLSS is unavailable, so the normal renderer is used. Open the menu (" + Main.KeyLabel(Main.S.menuKey) + ") for details."
+                    : "BTScale OFF (menu: " + Main.KeyLabel(Main.S.menuKey) + ")";
             }
         }
 

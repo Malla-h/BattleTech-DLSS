@@ -1,7 +1,7 @@
 {
   "Name": "BTScale",
   "Enabled": true,
-  "Version": "0.9.0",
+  "Version": "0.9.1",
   "DLL": "BTScale.dll",
   "DLLEntryPoint": "BTScale.Main.Init",
   "Settings": {

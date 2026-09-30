@@ -13,13 +13,29 @@ mod uses Harmony patches).
 ## Requirements
 - An NVIDIA RTX GPU with a recent driver.
 - BattleTech with ModTek installed (tested with ModTek 4.5.2, Unity 2018.4, Direct3D 11).
-- `nvngx_dlss.dll` (DLSS 310.9.1 was used for development) placed in the mod folder. It is **not included** here or in the mod download: it is
-  NVIDIA's software under NVIDIA's license, so get it yourself from NVIDIA's DLSS SDK repository
-  (https://github.com/NVIDIA/DLSS, file `lib/Windows_x86_64/rel/nvngx_dlss.dll`) and copy it next to `BTScale.dll`.
+- `nvngx_dlss.dll`, the DLSS runtime. It is **not included** in this repository or in the mod download, because it is NVIDIA's software under NVIDIA's
+  license. Install step 2 below shows how to get it (one small file, no account needed).
 
 ## Install
-Copy the `BTScale` folder into `BATTLETECH\Mods\`. It must contain `BTScale.dll`, `BTDLSS.dll`, `nvngx_dlss.dll` and `mod.json`.
-Start the game and confirm BTScale is enabled in the mod manager.
+1. **Get the mod.** Download `BTScale-<version>.zip` from the [Releases page](https://github.com/Malla-h/BattleTech-DLSS/releases) and extract the
+   `BTScale` folder into `BATTLETECH\Mods\`.
+2. **Get `nvngx_dlss.dll` from NVIDIA (required).**
+   - Download just this one file from NVIDIA's public DLSS repository, about 56 MB:
+     **https://github.com/NVIDIA/DLSS/raw/main/lib/Windows_x86_64/rel/nvngx_dlss.dll**
+     (or open https://github.com/NVIDIA/DLSS/blob/main/lib/Windows_x86_64/rel/nvngx_dlss.dll and use the download button). Don't download the whole
+     repository: it is over a gigabyte and you only need this file. Use the file in the `rel` (release) folder, not `dev`.
+   - Copy it into `BATTLETECH\Mods\BTScale\`, next to `BTScale.dll`. The folder should now contain `BTScale.dll`, `BTDLSS.dll`, `nvngx_dlss.dll` and
+     `mod.json`, plus the license and notice files.
+   - By downloading it you accept NVIDIA's license for it: https://github.com/NVIDIA/DLSS/blob/main/LICENSE.txt.
+   - Check: the file should be 58,956,912 bytes (DLSS version 310.9.1, visible under the file's Properties, Details). The mod was developed and tested
+     with that version.
+3. **Start the game** and make sure BTScale is enabled in the mod manager (restart the game after enabling it). Load a mission and press **F11**. The menu
+   shows `DLSS Ready` once DLSS is running.
+
+**If it doesn't work:** if `nvngx_dlss.dll` is missing, the menu says so and the game keeps its normal renderer (you will see a short message
+in the top-left corner), so nothing looks worse until you add the file. After adding it, change any setting in the menu (for example toggle DLSS off and
+on) and it is picked up without restarting. Otherwise check `BTScale.log` and `BTDLSS.log` in the mod folder; an issue report with those two files is the
+most useful thing you can send.
 
 ## Use
 | Key | Action | Default |

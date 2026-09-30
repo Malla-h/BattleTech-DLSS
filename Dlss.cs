@@ -124,8 +124,17 @@ namespace BTScale
                 + " jit(" + JitSx + "," + JitSy + ")" + (NoJitter ? "[OFF]" : "") + " mv(" + MvSx + "," + MvSy + ") mip=" + MipBias.Current.ToString("F2") + " outl=" + (Main.S.fullResOutlines ? "fullres" : "lowres");
         }
 
+        public static bool Failed { get { return state == St.Failed; } }
+
         static bool Load()
         {
+            // The DLSS runtime is NVIDIA's file and is not part of the download; say so plainly if it was not added.
+            if (!File.Exists(Path.Combine(Main.Dir, "nvngx_dlss.dll")))
+            {
+                LastFailure = "nvngx_dlss.dll is missing from the BTScale mod folder. It is NVIDIA's file and is not included in the download: see the README (Install, step 2).";
+                Main.Log(LastFailure);
+                return false;
+            }
             try
             {
                 var path = Path.Combine(Main.Dir, "BTDLSS.dll");
