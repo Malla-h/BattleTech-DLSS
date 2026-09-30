@@ -4,6 +4,12 @@ Renders the combat camera at a lower internal resolution and upscales it to your
 tooltips and post-processing stay at full resolution. Requires ModTek (the game's HBS mod loader alone is not enough because the
 mod uses Harmony patches).
 
+## Related projects
+- [BattleTech-DLSS-Native](https://github.com/Malla-h/BattleTech-DLSS-Native): the small native plugin (`BTDLSS.dll`) this mod uses to talk to NVIDIA's
+  DLSS. Its build instructions live there.
+- [BattleTech-FarSight](https://github.com/Malla-h/BattleTech-FarSight): a separate mod that lengthens shrub and tree draw distance. It works
+  alongside this one.
+
 ## Requirements
 - An NVIDIA RTX GPU with a recent driver.
 - BattleTech with ModTek installed (tested with ModTek 4.5.2, Unity 2018.4, Direct3D 11).
@@ -76,8 +82,10 @@ correct. `BTDLSS.dll` is a small native plugin that talks to NGX on the render t
 - `BTScale`: `dotnet build -c Release`. It references the game's `Managed` folder and ModTek's `0Harmony.dll`. Point it at your game with the
   `BATTLETECH_DIR` environment variable, `-p:BTRoot=...`, or a git-ignored `local.props` file (see the comment in `BTScale.csproj`). Without any of
   these it looks in the default Steam location.
-- `BTDLSS` (the native plugin, separate repository): `build.bat` with the Visual Studio C++ build tools and the NVIDIA DLSS SDK. See its README.
-- `package.ps1` assembles a clean folder with only the files listed above. It expects `BTDLSS` and `ThirdParty\DLSS` next to this folder.
+- `BTDLSS.dll` (the native plugin) comes from its own repository, [BattleTech-DLSS-Native](https://github.com/Malla-h/BattleTech-DLSS-Native): run its
+  `build.bat` with the Visual Studio C++ build tools and the NVIDIA DLSS SDK. See its README.
+- `package.ps1` assembles a clean folder with only the files listed above. It expects a clone of the native plugin repository next to this one, in a
+  folder named `BTDLSS`.
 
 ## Credits and licenses
 - BTScale is released under the [MIT License](LICENSE). That covers the code in this repository only.
