@@ -53,29 +53,15 @@ Menu options:
 
 Settings are stored in `BTScale.user.json` in the mod folder (it overrides `mod.json`). Delete it to reset.
 
-## Performance (measured)
-RTX 5060, 3840x2160, one GPU-bound combat view, DLSS preset K. GPU time is the DLSS pass alone, from timestamp queries.
-
-| Mode | Frame time | FPS | DLSS pass |
-|---|---|---|---|
-| Native (mod off) | 17.7 ms | 56 | - |
-| DLAA | 21.5 ms | 47 | 3.7 ms |
-| Ultra Quality | 16.4 ms | 61 | 3.6 ms |
-| Quality | 14.2 ms | 71 | 3.6 ms |
-| Balanced | 12.8 ms | 79 | 3.6 ms |
-| Performance | 11.4 ms | 88 | 3.6 ms |
-| Ultra Performance | 10.9 ms | 92 | 3.4 ms |
-
-Presets cost very different amounts. At Quality: K and J 3.6 ms, M 7.5 ms, L 9.7 ms. At DLAA, M costs 13.7 ms. K is the default for that reason.
-Video memory use drops (about 3.3 GB at Quality against 4.1 GB native). In CPU-limited scenes several modes read the same FPS because
-the game is not waiting on the GPU there.
+## Planned
+AMD FSR upscaling support is planned for a future version. There is no date, and it is not part of the current release.
 
 ## Notes and known limitations
 - Only the combat camera is scaled. Menus, the star map and the mech bay are unchanged.
-- Mech outlines, the move cursor and mission-boundary lines are rendered at output resolution (menu option, on by default) and
-  composited after DLSS. They keep the game's own hard 1-pixel edge look, and can still flicker slightly where they cross depth edges
-  (rocks, the treeline), as they do without DLSS. Jittering transparents would make them worse, so that is off by default.
-- The volumetric fog is applied before DLSS and has no motion vectors of its own, so it can lag slightly during fast camera moves.
+- Mission-boundary lines are rendered at output resolution (menu option, on by default) and composited after DLSS, so they can flicker slightly where
+  they cross depth edges (rocks, the treeline), as they do without DLSS. Jittering transparents (a debug setting) would make the mech outlines wobble,
+  so it is off by default.
+- The fog is applied before DLSS and has no motion vectors of its own, so it can lag slightly during fast camera moves.
 - Particle resolution follows the game's own effects-quality setting.
 - If the game's own anti-aliasing option is off, DLSS does not run (the game's TAA path is what enables the jitter DLSS needs).
 - Logs: `BTScale.log` and `BTDLSS.log` in the mod folder (the previous session's are kept as `.old`).

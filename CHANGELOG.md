@@ -19,7 +19,7 @@ First complete version.
 - Corrected mouse picking, hover, nameplates and edge-of-screen indicators at the internal resolution.
 - Own jitter (Halton, sized for the render scale) and confirmed sign conventions for jitter and motion vectors.
 - Texture mip bias for the lower render resolution; transparents and VFX use the jittered projection.
-- Mech outline / move-cursor texture handled to stay aligned; small residual shimmer remains.
+- Mech outline / move-cursor texture handled to stay aligned.
 - Developer tools kept behind `"debug": true`.
 - Logs rotate per session and are size-capped. Per-frame lookups cached.
 - Transparents are no longer jittered by default (it made mech outlines wobble); optional via `jitterTransparents`.
