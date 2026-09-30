@@ -7,6 +7,8 @@
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>BTScale</AssemblyName>
     <LangVersion>latest</LangVersion>
+    <!-- Release builds must not embed the build machine's folder path (the debug-symbol path would put the user name in the DLL). -->
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
     <BTRoot Condition="'$(BTRoot)' == '' And '$(BATTLETECH_DIR)' != ''">$(BATTLETECH_DIR)</BTRoot>
     <BTRoot Condition="'$(BTRoot)' == ''">C:\Program Files (x86)\Steam\steamapps\common\BATTLETECH</BTRoot>
     <BTManaged>$(BTRoot)\BattleTech_Data\Managed</BTManaged>
