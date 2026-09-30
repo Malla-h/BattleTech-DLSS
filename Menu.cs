@@ -23,7 +23,9 @@ namespace BTScale
 
         void Update()
         {
-            if (Input.GetKeyDown(key)) show = !show;
+            // Ctrl+<key> combinations belong to other mods and the debug shortcuts (FarSight uses Ctrl+F11).
+            bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            if (!ctrl && Input.GetKeyDown(key)) show = !show;
             if (calibAt > 0f && Time.realtimeSinceStartup >= calibAt) { calibAt = 0f; Calib.Start(); }
         }
 
