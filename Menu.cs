@@ -87,6 +87,9 @@ namespace BTScale
             GUILayout.Label(Dlss.Describe());
             if (Dlss.LastFailure.Length > 0) GUILayout.Label("DLSS failed: " + Dlss.LastFailure + "  (change a setting to retry)");
 
+            GUILayout.Space(4);
+            GUILayout.Label("Uses NVIDIA DLSS. Unofficial mod, not sponsored or endorsed by NVIDIA.");
+
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Save")) { s.dlss = Dlss.Enabled; Main.Save(); note = "Saved to BTScale.user.json"; }
             if (GUILayout.Button("Close")) show = false;

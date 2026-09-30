@@ -16,7 +16,14 @@ Copy-Item (Join-Path $root "mod.json") $out
 Copy-Item (Join-Path $root "README.md") $out
 Copy-Item (Join-Path $root "CHANGELOG.md") $out
 Copy-Item (Join-Path $root "LICENSE") $out
+Copy-Item (Join-Path $root "THIRD-PARTY-NOTICES.md") $out
 Copy-Item (Join-Path $root "..\BTDLSS\bin\BTDLSS.dll") $out
 
-Get-ChildItem $out | Select-Object Name, Length
+# BTDLSS.dll contains NVIDIA SDK code, so the NVIDIA license text must travel with it. Refuse to build a package without it.
+$nvidiaLicense = Join-Path $root "..\ThirdParty\DLSS\LICENSE.txt"
+if (-not (Test-Path $nvidiaLicense)) { throw "NVIDIA SDK license not found at $nvidiaLicense. Clone github.com/NVIDIA/DLSS to ..\ThirdParty\DLSS first." }
+New-Item -ItemType Directory -Force (Join-Path $out "licenses") | Out-Null
+Copy-Item $nvidiaLicense (Join-Path $out "licenses\NVIDIA-RTX-SDKs-LICENSE.txt")
+
+Get-ChildItem $out -Recurse -File | Select-Object @{n="Path";e={$_.FullName.Substring($out.Length + 1)}}, Length
 Write-Host "Note: nvngx_dlss.dll is not included. See the README for where to get it."

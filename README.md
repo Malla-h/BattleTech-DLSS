@@ -84,12 +84,15 @@ correct. `BTDLSS.dll` is a small native plugin that talks to NGX on the render t
   these it looks in the default Steam location.
 - `BTDLSS.dll` (the native plugin) comes from its own repository, [BattleTech-DLSS-Native](https://github.com/Malla-h/BattleTech-DLSS-Native): run its
   `build.bat` with the Visual Studio C++ build tools and the NVIDIA DLSS SDK. See its README.
-- `package.ps1` assembles a clean folder with only the files listed above. It expects a clone of the native plugin repository next to this one, in a
-  folder named `BTDLSS`.
+- `package.ps1` assembles a clean release folder (the mod, `BTDLSS.dll`, the notices and NVIDIA's license text; never `nvngx_dlss.dll`). It expects a
+  clone of the native plugin repository next to this one in a folder named `BTDLSS`, and NVIDIA's DLSS SDK in `..\ThirdParty\DLSS` (for the license text).
 
 ## Credits and licenses
 - BTScale is released under the [MIT License](LICENSE). That covers the code in this repository only.
-- DLSS and NGX are NVIDIA technologies. This repository does not contain or redistribute any NVIDIA SDK files or `nvngx_dlss.dll`; get them from
-  NVIDIA's SDK repository and read its license before redistributing anything.
+- **DLSS is a technology of NVIDIA Corporation.** This mod is unofficial and not sponsored or endorsed by NVIDIA. NVIDIA, DLSS, RTX and GeForce RTX
+  are trademarks of NVIDIA Corporation.
+- This source repository contains no NVIDIA files. The prebuilt release download includes `BTDLSS.dll`, which contains statically linked NVIDIA NGX code
+  under the NVIDIA RTX SDKs License; the license text and a notice come with the download (`licenses/` and `THIRD-PARTY-NOTICES.md`, see
+  [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)). `nvngx_dlss.dll` is never included: get it from NVIDIA's SDK repository.
 - [Harmony](https://github.com/pardeike/Harmony) does the runtime patching, and ModTek loads the mod. Neither is included here.
 - BattleTech is a game by Harebrained Schemes / Paradox. This is an unofficial fan modification.
