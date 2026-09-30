@@ -7,8 +7,9 @@ mod uses Harmony patches).
 ## Requirements
 - An NVIDIA RTX GPU with a recent driver.
 - BattleTech with ModTek installed (tested with ModTek 4.5.2, Unity 2018.4, Direct3D 11).
-- `nvngx_dlss.dll` (DLSS 310.9.1 was used for development) placed in the mod folder. It is not included in this repository; it comes
-  from NVIDIA's DLSS SDK (https://github.com/NVIDIA/DLSS, `lib/Windows_x86_64/rel/`). Check NVIDIA's license before redistributing it.
+- `nvngx_dlss.dll` (DLSS 310.9.1 was used for development) placed in the mod folder. It is **not included** here or in the mod download: it is
+  NVIDIA's software under NVIDIA's license, so get it yourself from NVIDIA's DLSS SDK repository
+  (https://github.com/NVIDIA/DLSS, file `lib/Windows_x86_64/rel/nvngx_dlss.dll`) and copy it next to `BTScale.dll`.
 
 ## Install
 Copy the `BTScale` folder into `BATTLETECH\Mods\`. It must contain `BTScale.dll`, `BTDLSS.dll`, `nvngx_dlss.dll` and `mod.json`.
@@ -79,6 +80,7 @@ correct. `BTDLSS.dll` is a small native plugin that talks to NGX on the render t
 - `package.ps1` assembles a clean folder with only the files listed above. It expects `BTDLSS` and `ThirdParty\DLSS` next to this folder.
 
 ## Credits and licenses
+- BTScale is released under the [MIT License](LICENSE). That covers the code in this repository only.
 - DLSS and NGX are NVIDIA technologies. This repository does not contain or redistribute any NVIDIA SDK files or `nvngx_dlss.dll`; get them from
   NVIDIA's SDK repository and read its license before redistributing anything.
 - [Harmony](https://github.com/pardeike/Harmony) does the runtime patching, and ModTek loads the mod. Neither is included here.
