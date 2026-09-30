@@ -4,5 +4,6 @@ obj/
 *.old
 *.png
 dist/
+local.props
 BTScale.user.json
 .vs/

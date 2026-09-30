@@ -72,7 +72,14 @@ resolution target that a small present camera shows, and rescale mouse and world
 correct. `BTDLSS.dll` is a small native plugin that talks to NGX on the render thread.
 
 ## Building
-- `BTScale`: `dotnet build -c Release` (references the game's `Managed` folder and ModTek's `0Harmony.dll`; adjust `BTRoot` in
-  `BTScale.csproj` if your game is elsewhere).
-- `BTDLSS` (separate repo/folder): `build.bat` with Visual Studio C++ build tools and the NVIDIA DLSS SDK.
-- `package.ps1` assembles a clean folder with only the files listed above.
+- `BTScale`: `dotnet build -c Release`. It references the game's `Managed` folder and ModTek's `0Harmony.dll`. Point it at your game with the
+  `BATTLETECH_DIR` environment variable, `-p:BTRoot=...`, or a git-ignored `local.props` file (see the comment in `BTScale.csproj`). Without any of
+  these it looks in the default Steam location.
+- `BTDLSS` (the native plugin, separate repository): `build.bat` with the Visual Studio C++ build tools and the NVIDIA DLSS SDK. See its README.
+- `package.ps1` assembles a clean folder with only the files listed above. It expects `BTDLSS` and `ThirdParty\DLSS` next to this folder.
+
+## Credits and licenses
+- DLSS and NGX are NVIDIA technologies. This repository does not contain or redistribute any NVIDIA SDK files or `nvngx_dlss.dll`; get them from
+  NVIDIA's SDK repository and read its license before redistributing anything.
+- [Harmony](https://github.com/pardeike/Harmony) does the runtime patching, and ModTek loads the mod. Neither is included here.
+- BattleTech is a game by Harebrained Schemes / Paradox. This is an unofficial fan modification.

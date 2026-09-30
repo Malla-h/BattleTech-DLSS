@@ -1,9 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- Machine-specific settings go in local.props (git-ignored), e.g.:
+       <Project><PropertyGroup><BTRoot>D:\Games\BATTLETECH</BTRoot></PropertyGroup></Project>
+       Alternatively set the BATTLETECH_DIR environment variable, or pass -p:BTRoot=... on the command line. -->
+  <Import Project="local.props" Condition="Exists('local.props')" />
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>BTScale</AssemblyName>
     <LangVersion>latest</LangVersion>
-    <BTRoot>H:\SteamLibrary\steamapps\common\BATTLETECH</BTRoot>
+    <BTRoot Condition="'$(BTRoot)' == '' And '$(BATTLETECH_DIR)' != ''">$(BATTLETECH_DIR)</BTRoot>
+    <BTRoot Condition="'$(BTRoot)' == ''">C:\Program Files (x86)\Steam\steamapps\common\BATTLETECH</BTRoot>
     <BTManaged>$(BTRoot)\BattleTech_Data\Managed</BTManaged>
   </PropertyGroup>
   <ItemGroup>
