@@ -2,8 +2,8 @@
 
 Adds NVIDIA DLSS and DLAA to BattleTech's combat view. With DLSS the camera renders at a lower internal resolution and is upscaled to your
 screen resolution; with DLAA it renders at your full resolution and DLSS is used purely as anti-aliasing (higher quality, higher GPU cost). The HUD,
-tooltips and post-processing stay at full resolution. Requires ModTek (the game's HBS mod loader alone is not enough because the
-mod uses Harmony patches).
+tooltips and post-processing stay at full resolution. Requires [ModTek](https://github.com/BattletechModders/ModTek/releases), the community mod
+loader, because the mod uses Harmony 2 patches that the base game does not include.
 
 ## Related projects
 - [BattleTech-DLSS-Native](https://github.com/Malla-h/BattleTech-DLSS-Native): the small native plugin (`BTDLSS.dll`) this mod uses to talk to NVIDIA's
@@ -13,14 +13,18 @@ mod uses Harmony patches).
 
 ## Requirements
 - An NVIDIA RTX GPU with a recent driver.
-- BattleTech with ModTek installed (tested with ModTek 4.5.2, Unity 2018.4, Direct3D 11).
+- BattleTech with **ModTek** installed (tested with ModTek 4.5.2, Unity 2018.4, Direct3D 11). Install step 1 below says how to get it if you don't have it.
 - NVIDIA's DLSS runtime, `nvngx_dlss.dll`, comes **with the release download** (see Credits and licenses). This source repository does not contain it.
 
 ## Install
-1. **Get the mod.** Download `BTScale-<version>.zip` from the [Releases page](https://github.com/Malla-h/BattleTech-DLSS/releases) and extract the
+1. **Install ModTek (skip this if you already have it).** Download `ModTek.zip` from the [ModTek releases page](https://github.com/BattletechModders/ModTek/releases)
+   and extract it into the folder that contains `BattleTech.exe`. That adds `winhttp.dll` next to the executable and a `Mods` folder. When it works,
+   the main menu shows `/W MODTEK` next to the version number. ModTek's own notes say the game must be installed outside `Program Files`
+   (Windows' UAC restrictions interfere). See [ModTek's INSTALL.md](https://github.com/BattletechModders/ModTek/blob/master/INSTALL.md) for details.
+2. **Get the mod.** Download `BTScale-<version>.zip` from the [Releases page](https://github.com/Malla-h/BattleTech-DLSS/releases) and extract the
    `BTScale` folder into `BATTLETECH\Mods\`. It already contains everything: `BTScale.dll`, `BTDLSS.dll`, `nvngx_dlss.dll` (DLSS 310.9.1) and `mod.json`,
    plus the license and notice files.
-2. **Start the game** and make sure BTScale is enabled in the mod manager (restart the game after enabling it). Load a mission and press **F11**. The menu
+3. **Start the game** and make sure BTScale is enabled in the mod manager (restart the game after enabling it). Load a mission and press **F11**. The menu
    shows `DLSS Ready` once DLSS is running.
 
 **If it doesn't work:** if `nvngx_dlss.dll` is missing (an antivirus may remove it, or the folder was copied incompletely), the menu says so and the
