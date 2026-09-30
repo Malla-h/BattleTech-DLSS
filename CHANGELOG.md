@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.2
+- The release download now includes NVIDIA's DLSS runtime (`nvngx_dlss.dll`, version 310.9.1), so installing is just extracting the folder. It ships with
+  NVIDIA's license text and a notice, as `BTDLSS.dll` already did. The source repositories still contain no NVIDIA files.
+- Updated the install instructions and the message shown if the runtime file is missing.
+
 ## 0.9.1
 - Clearer install instructions, with a direct link to the single `nvngx_dlss.dll` file players have to get from NVIDIA and how to check it.
 - If `nvngx_dlss.dll` is missing (or DLSS otherwise cannot run), the mod now falls back to the game's normal renderer with a short on-screen message

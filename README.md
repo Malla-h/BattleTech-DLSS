@@ -13,29 +13,23 @@ mod uses Harmony patches).
 ## Requirements
 - An NVIDIA RTX GPU with a recent driver.
 - BattleTech with ModTek installed (tested with ModTek 4.5.2, Unity 2018.4, Direct3D 11).
-- `nvngx_dlss.dll`, the DLSS runtime. It is **not included** in this repository or in the mod download, because it is NVIDIA's software under NVIDIA's
-  license. Install step 2 below shows how to get it (one small file, no account needed).
+- NVIDIA's DLSS runtime, `nvngx_dlss.dll`, comes **with the release download** (see Credits and licenses). This source repository does not contain it.
 
 ## Install
 1. **Get the mod.** Download `BTScale-<version>.zip` from the [Releases page](https://github.com/Malla-h/BattleTech-DLSS/releases) and extract the
-   `BTScale` folder into `BATTLETECH\Mods\`.
-2. **Get `nvngx_dlss.dll` from NVIDIA (required).**
-   - Download just this one file from NVIDIA's public DLSS repository, about 56 MB:
-     **https://github.com/NVIDIA/DLSS/raw/main/lib/Windows_x86_64/rel/nvngx_dlss.dll**
-     (or open https://github.com/NVIDIA/DLSS/blob/main/lib/Windows_x86_64/rel/nvngx_dlss.dll and use the download button). Don't download the whole
-     repository: it is over a gigabyte and you only need this file. Use the file in the `rel` (release) folder, not `dev`.
-   - Copy it into `BATTLETECH\Mods\BTScale\`, next to `BTScale.dll`. The folder should now contain `BTScale.dll`, `BTDLSS.dll`, `nvngx_dlss.dll` and
-     `mod.json`, plus the license and notice files.
-   - By downloading it you accept NVIDIA's license for it: https://github.com/NVIDIA/DLSS/blob/main/LICENSE.txt.
-   - Check: the file should be 58,956,912 bytes (DLSS version 310.9.1, visible under the file's Properties, Details). The mod was developed and tested
-     with that version.
-3. **Start the game** and make sure BTScale is enabled in the mod manager (restart the game after enabling it). Load a mission and press **F11**. The menu
+   `BTScale` folder into `BATTLETECH\Mods\`. It already contains everything: `BTScale.dll`, `BTDLSS.dll`, `nvngx_dlss.dll` (DLSS 310.9.1) and `mod.json`,
+   plus the license and notice files.
+2. **Start the game** and make sure BTScale is enabled in the mod manager (restart the game after enabling it). Load a mission and press **F11**. The menu
    shows `DLSS Ready` once DLSS is running.
 
-**If it doesn't work:** if `nvngx_dlss.dll` is missing, the menu says so and the game keeps its normal renderer (you will see a short message
-in the top-left corner), so nothing looks worse until you add the file. After adding it, change any setting in the menu (for example toggle DLSS off and
-on) and it is picked up without restarting. Otherwise check `BTScale.log` and `BTDLSS.log` in the mod folder; an issue report with those two files is the
-most useful thing you can send.
+**If it doesn't work:** if `nvngx_dlss.dll` is missing (an antivirus may remove it, or the folder was copied incompletely), the menu says so and the
+game keeps its normal renderer, so nothing looks worse. Re-extract the mod, then change any setting in the menu (for example toggle DLSS off and on) and it is
+picked up without restarting. Otherwise check `BTScale.log` and `BTDLSS.log` in the mod folder; an issue report with those two files is the most useful
+thing you can send.
+
+**Updating the DLSS runtime (optional).** The mod was tested with the bundled 310.9.1. NVIDIA publishes newer runtimes in its DLSS SDK repository
+(https://github.com/NVIDIA/DLSS, `lib/Windows_x86_64/rel/nvngx_dlss.dll`); replacing the file is possible but untested with this mod, and NVIDIA's license
+applies to whichever version you use.
 
 ## Use
 | Key | Action | Default |
@@ -100,15 +94,16 @@ correct. `BTDLSS.dll` is a small native plugin that talks to NGX on the render t
   these it looks in the default Steam location.
 - `BTDLSS.dll` (the native plugin) comes from its own repository, [BattleTech-DLSS-Native](https://github.com/Malla-h/BattleTech-DLSS-Native): run its
   `build.bat` with the Visual Studio C++ build tools and the NVIDIA DLSS SDK. See its README.
-- `package.ps1` assembles a clean release folder (the mod, `BTDLSS.dll`, the notices and NVIDIA's license text; never `nvngx_dlss.dll`). It expects a
-  clone of the native plugin repository next to this one in a folder named `BTDLSS`, and NVIDIA's DLSS SDK in `..\ThirdParty\DLSS` (for the license text).
+- `package.ps1` assembles a clean release folder (the mod, `BTDLSS.dll`, NVIDIA's `nvngx_dlss.dll`, the notices and NVIDIA's license text). It expects a clone
+  of the native plugin repository next to this one in a folder named `BTDLSS`, and NVIDIA's DLSS SDK in `..\ThirdParty\DLSS` (the runtime and license text come
+  from there). It refuses to build a package without the license text.
 
 ## Credits and licenses
 - BTScale is released under the [MIT License](LICENSE). That covers the code in this repository only.
 - **DLSS is a technology of NVIDIA Corporation.** This mod is unofficial and not sponsored or endorsed by NVIDIA. NVIDIA, DLSS, RTX and GeForce RTX
   are trademarks of NVIDIA Corporation.
-- This source repository contains no NVIDIA files. The prebuilt release download includes `BTDLSS.dll`, which contains statically linked NVIDIA NGX code
-  under the NVIDIA RTX SDKs License; the license text and a notice come with the download (`licenses/` and `THIRD-PARTY-NOTICES.md`, see
-  [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)). `nvngx_dlss.dll` is never included: get it from NVIDIA's SDK repository.
+- This source repository contains no NVIDIA files. The prebuilt release download includes two NVIDIA-licensed files: `nvngx_dlss.dll` (NVIDIA's DLSS
+  runtime) and `BTDLSS.dll` (which contains statically linked NVIDIA NGX code). They are provided under the NVIDIA RTX SDKs License; the license text
+  and a notice come with the download (`licenses/` and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)).
 - [Harmony](https://github.com/pardeike/Harmony) does the runtime patching, and ModTek loads the mod. Neither is included here.
 - BattleTech is a game by Harebrained Schemes / Paradox. This is an unofficial fan modification.
