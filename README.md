@@ -1,6 +1,7 @@
 # BTScale: DLSS for BattleTech
 
-Renders the combat camera at a lower internal resolution and upscales it to your screen resolution with NVIDIA DLSS. The HUD,
+Adds NVIDIA DLSS and DLAA to BattleTech's combat view. With DLSS the camera renders at a lower internal resolution and is upscaled to your
+screen resolution; with DLAA it renders at your full resolution and DLSS is used purely as anti-aliasing (higher quality, higher GPU cost). The HUD,
 tooltips and post-processing stay at full resolution. Requires ModTek (the game's HBS mod loader alone is not enough because the
 mod uses Harmony patches).
 
