@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.3
+- New "Show the status text" option (menu checkbox and `showStatus` setting) to hide the text at the top left of the combat view. A warning is still
+  shown there if DLSS cannot run.
+
 ## 0.9.2
 - The release download now includes NVIDIA's DLSS runtime (`nvngx_dlss.dll`, version 310.9.1), so installing is just extracting the folder. It ships with
   NVIDIA's license text and a notice, as `BTDLSS.dll` already did. The source repositories still contain no NVIDIA files.

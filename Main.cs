@@ -17,6 +17,7 @@ namespace BTScale
         public bool dlss = true;
         public bool jitterTransparents = false; // jitter transparents/VFX too: better for DLSS on particles, but mech outlines then wobble
         public bool fullResOutlines = true;     // render mech outlines / move cursor / mission boundary at output resolution
+        public bool showStatus = true;          // the status text at the top left of the combat view (a "DLSS is unavailable" warning is always shown)
         public bool debug = false;             // developer tools: sign-flip keys, stage captures, screenshots, calibration
         // Hotkeys. Only the menu is bound by default: players use F1-F6, F8 and F9 for quick save/load and unit selection.
         // Any of these accepts a Unity KeyCode name ("F7", "Insert", ...) or "None" to leave it unbound. Everything is also in the F11 menu.
@@ -150,6 +151,7 @@ namespace BTScale
         Camera presentCam;
         int stableFrames, shotCount;
         float nextStatusAt;
+        bool dlssBroken;                              // DLSS is on but cannot run; the warning text is then shown even when showStatus is off
 
         void Awake()
         {
@@ -271,7 +273,7 @@ namespace BTScale
             // Wait for the combat camera to settle (and the loading screen to end) before redirecting its output.
             if (combat && !loading) stableFrames++; else stableFrames = 0;
             // If DLSS is on but cannot run (missing runtime file, unsupported setting...), show the normal renderer, not a blurry low-res stretch.
-            bool dlssBroken = Dlss.Enabled && Dlss.Failed;
+            dlssBroken = Dlss.Enabled && Dlss.Failed;
             bool want = Enabled && stableFrames > 30 && !dlssBroken;
             if (presentCam.enabled != want) presentCam.enabled = want;
 
@@ -327,7 +329,9 @@ namespace BTScale
 
         void OnGUI()
         {
-            if (status.Length > 0 && !SkipUI) GUI.Label(new Rect(10, 6, 700, 24), status);
+            if (status.Length == 0 || SkipUI) return;
+            if (!Main.S.showStatus && !dlssBroken) return;
+            GUI.Label(new Rect(10, 6, 700, 24), status);
         }
     }
 

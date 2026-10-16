@@ -53,6 +53,7 @@ Menu options:
   Ultra Performance (33 %). Higher percentages look better and cost more GPU time.
 - **DLSS preset**: Default lets NVIDIA choose per mode. K is the transformer model and the default here. L and M are heavier.
 - **Texture sharpness bias**: compensates for texture blur at lower internal resolutions (Full, 2/3, 1/3, Off).
+- **Show the status text**: the line at the top left with the resolution and DLSS state. Untick it to hide it (a warning is still shown if DLSS cannot run). Also `showStatus` in `mod.json`.
 - **Hide the game UI**: removes the HUD, tooltips, outlines and this mod's text so you can take clean screenshots. Close the menu to
   see the result; open it again to switch the UI back on. It works with or without the render-scale pipeline. Bind `hideUiKey` for a hotkey.
 

@@ -1,7 +1,7 @@
 {
   "Name": "BTScale",
   "Enabled": true,
-  "Version": "0.9.2",
+  "Version": "0.9.3",
   "DLL": "BTScale.dll",
   "DLLEntryPoint": "BTScale.Main.Init",
   "Settings": {
@@ -11,6 +11,7 @@
     "dlss": true,
     "jitterTransparents": false,
     "fullResOutlines": true,
+    "showStatus": true,
     "debug": false,
     "menuKey": "F11",
     "toggleKey": "None",

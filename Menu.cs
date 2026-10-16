@@ -66,6 +66,7 @@ namespace BTScale
             GUILayout.Space(6);
             s.fullResOutlines = GUILayout.Toggle(s.fullResOutlines, "Full-resolution mech outlines, move cursor and mission boundary");
             Scaler.SkipUI = GUILayout.Toggle(Scaler.SkipUI, "Hide the game UI (for screenshots; close this menu to see the result)" + KeyHint(s.hideUiKey));
+            s.showStatus = GUILayout.Toggle(s.showStatus, "Show the status text at the top left (resolution and DLSS state)");
 
             GUILayout.Space(6);
             GUILayout.Label("Texture sharpness bias (compensates the lower render resolution)");
